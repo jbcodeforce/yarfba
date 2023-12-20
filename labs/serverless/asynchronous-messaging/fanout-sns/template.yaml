@@ -1,0 +1,124 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Wild Rydes Asynchronous Messaging Workshop - Lab 1
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 10
+    Runtime: python3.9
+    Tags:
+      project: wild-rydes
+      workshop: asynchronous-messaging-workshop
+      author: aws
+
+Resources:
+
+  SubmitRideCompletionFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: unicorn-management-service/
+      Handler: app.lambda_handler
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref RidesTable
+          TOPIC_ARN: !Ref RideCompletionTopic
+      Policies:
+        - DynamoDBCrudPolicy: # https://github.com/awslabs/serverless-application-model/blob/develop/samtranslator/policy_templates_data/policy_templates.json
+            TableName: !Ref RidesTable
+        - SNSPublishMessagePolicy:
+           TopicName: !GetAtt RideCompletionTopic.TopicName
+      Events:
+        WildRydes:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /submit-ride-completion
+            Method: post
+
+################################################
+## MICROSERVICES BACKENDS BASED ON AWS LAMBDA ##
+################################################
+  CustomerAccountingFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: customer_accounting_service/
+      Handler: app.lambda_handler
+      Events:
+       SNSEvent:
+         Type: SNS
+         Properties:
+           Topic: !Ref RideCompletionTopic
+
+  CustomerNotificationFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: customer_notification_service/
+      Handler: app.lambda_handler
+      Events:
+       SNSEvent:
+         Type: SNS
+         Properties:
+           Topic: !Ref RideCompletionTopic      
+
+  ExtraordinaryRidesFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: extraordinary_rides_service/
+      Handler: app.lambda_handler
+      Events:
+        SNSEvent:
+         Type: SNS
+         Properties:
+           Topic: !Ref RideCompletionTopic
+           FilterPolicy:
+             fare:
+               - numeric:
+                   - '>='
+                   - 50
+             distance:
+               - numeric:
+                   - '>='
+                   - 20
+
+  RidesTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: !Sub "Rides-${AWS::StackName}"
+      PrimaryKey:
+        Name: id
+        Type: String  
+
+  RideCompletionTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+     TopicName: RideCompletionTopic
+
+Outputs:
+  UnicornManagementServiceApiSubmitRideCompletionEndpoint:
+    Description: "API Gateway endpoint URL for Prod stage for SubmitRideCompletion function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/submit-ride-completion/"
+
+  SubmitRideCompletionFunction:
+    Description: "SubmitRideCompletionFunction Lambda Function ARN"
+    Value: !GetAtt SubmitRideCompletionFunction.Arn
+
+  CustomerAccountingFunction:
+    Description: "CustomerAccountingFunction Lambda Function ARN"
+    Value: !GetAtt CustomerAccountingFunction.Arn
+
+  CustomerNotificationFunction:
+    Description: "CustomerNotificationFunction Lambda Function ARN"
+    Value: !GetAtt CustomerNotificationFunction.Arn
+
+  ExtraordinaryRidesFunction:
+    Description: "ExtraordinaryRidesFunction Lambda Function ARN"
+    Value: !GetAtt ExtraordinaryRidesFunction.Arn
+
+  SubmitRideCompletionFunctionIamRole:
+    Description: "Implicit IAM Role created for SubmitRideCompletion function"
+    Value: !GetAtt SubmitRideCompletionFunctionRole.Arn
+
+  RidesTable:
+    Description: "Amazon DynamoDB table ARN for Rides table"
+    Value: !Ref RidesTable

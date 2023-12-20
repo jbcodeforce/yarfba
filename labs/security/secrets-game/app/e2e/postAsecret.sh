@@ -1,0 +1,1 @@
+curl -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d '{"name":"AppDemo", "secret": "supersecret"}' http://localhost:8080/secrets/

@@ -1,0 +1,113 @@
+site_name: AWS Studies
+repo_url: https://github.com/jbcodeforce/aws-studies.git
+site_author: Jerome Boyer
+nav:
+  - Introduction: index.md
+  - Infrastructure: 
+      - EC2-others: infra/index.md
+      - Networking: infra/networking.md
+      - Security: infra/security.md
+      - S3-Storage: infra/storage.md
+      - Route 53: infra/route53.md
+      - Monitoring: monitoring/monitoring.md
+      - Cost mgt: monitoring/cost.md
+      - Messaging: infra/messaging.md
+      - Kinesis*: kinesis/index.md
+     
+  - Architecture:
+      - Well Architectured: sa/well-architectured.md
+      - Solution design: sa/sol-design.md
+      - SA: sa/psa-role.md
+      - SaaS: sa/saas.md
+      - Resiliency: sa/resiliency.md
+      - Conduct Design session: templ/index.md
+  - Analytics: analytics/index.md
+  - Data:
+      - Introduction: data/index.md
+      - RDS-Aurora: data/rds.md
+      - DynamoDB: data/dynamodb.md
+      - Data Lake: data/data-lake.md
+      - RedShift: data/redshift.md
+  - AI-ML: 
+      - All Services: ai-ml/index.md
+      - SageMaker: ai-ml/sagemaker.md
+      - Bedrock: ai-ml/bedrock.md
+  - Serverless:
+      - Introduction: serverless/index.md
+      - Lambda: serverless/lambda.md
+      - API Gateway: serverless/apigtw.md
+      - ECS: serverless/ecs.md
+      - EKS: serverless/eks.md
+      - MSK: serverless/msk.md
+      - Streaming: kinesis/index.md
+      - EventBridge: serverless/eventbridge.md
+      - Step function: serverless/stepfct.md
+      - MWAA: serverless/mwaa.md
+  - Playground: 
+      - AWS personal labs: playground/index.md
+      - Getting Started EC2: playground/gettingstarted.md
+      - Security-IAM demos: playground/security/index.md
+      - S3 play: playground/s3-play.md
+      - Networking: playground/networking.md
+      - RDS: playground/rds.md
+      - Data processing: playground/rt-data-processing.md
+      - Analytics on EMR: playground/spark-emr.md
+      - ECS: playground/ecs.md
+      - S3 storage lens: playground/s3-org-billing.md
+      - SaaS demo: https://jbcodeforce.github.io/big-data-tenant-analytics/
+  - Coding:
+      - Practices: coding/index.md
+      - SAM: coding/sam.md
+      - CloudFormation: coding/cloudFormation.md
+      - CDK: coding/cdk.md
+  - Return to main: https://jbcodeforce.github.io
+theme: 
+  name: material
+  palette:
+    scheme: default
+  language: en
+  features:
+      - content.code.annotate
+      - content.tooltips
+      # - navigation.tabs
+      - navigation.instant
+      - navigation.tracking
+      - navigation.footer
+      # - navigation.sections
+      # - navigation.expand
+      - navigation.tabs.sticky
+      # - navigation.top
+
+  social:
+    - type: 'github'
+      link: 'https://github.com/jbcodeforce'
+    - type: 'linkedin'
+      link: 'https://linkedin.com/in/jeromeboyer'
+extra_css: ["extra.css"]
+plugins:
+  - search:
+      lang: en
+  - minify:
+      minify_html: true
+markdown_extensions:
+  - abbr
+  - attr_list
+  - md_in_html
+  - admonition
+  - codehilite
+  - footnotes
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - pymdownx.tabbed
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.tasklist:
+      custom_checkbox: true

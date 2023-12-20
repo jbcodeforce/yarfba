@@ -1,0 +1,12 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Step Function Calling Lambda
+
+Resources:
+  StockTradingStateMachine:
+    Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
+    Properties:
+      DefinitionUri: statemachine/call_lambda.asl.json
+      DefinitionSubstitutions:
+        HelloFunctionArn: !GetAtt HelloFunctionArn.Arn

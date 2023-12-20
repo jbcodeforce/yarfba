@@ -1,0 +1,10 @@
+site/
+**/.venv/
+**/node_modules/
+labs/analytics/kinesis-getting-started/kinesis-s3-policy.json
+labs/lambdas/java-sample/java-lambda/target/
+labs/cdk/ec2-basic/cdk.context.json
+labs/messaging/rabbitmq/data/
+**/log/
+**/.aws-sam/
+/labs/bedrock/dependencies/

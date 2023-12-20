@@ -1,0 +1,64 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Credit approval process
+
+Resources:
+  CreditApprovalProcessFlow:
+    Type: AWS::Serverless::StateMachine 
+    Properties:
+      DefinitionUri: statemachine/credit_approval.asl.json
+      Name: CreditApprovalProcessFlow
+      DefinitionSubstitutions:
+        ComputeLTVFunctionArn: !GetAtt ComputeLTVFunction.Arn
+        CheckAddressFunctionArn: !GetAtt CheckAddressFunction.Arn
+        ValidateIdentityFunctionArn: !GetAtt ValidateIdentityFunction.Arn
+        GetCreditScoreFunctionArn: !GetAtt GetCreditScoreFunction.Arn
+      Policies: 
+        - LambdaInvokePolicy:
+            FunctionName: !Ref ComputeLTVFunction
+
+  ComputeLTVFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
+    Properties:
+      CodeUri: functions/compute_ltv/
+      FunctionName: ComputeLTVFunction
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+  CheckAddressFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
+    Properties:
+      CodeUri: functions/check_address/
+      FunctionName: CheckAddressFunction
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+  ValidateIdentityFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
+    Properties:
+      CodeUri: functions/validate_identity/
+      FunctionName: ValidateIdentityFunction
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+  GetCreditScoreFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
+    Properties:
+      CodeUri: functions/get_credit_score/
+      FunctionName:   GetCreditScoreFunction
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+
+Outputs:
+  CreditApprovalProcessFlowArn:
+    Description: "Credit Approval flow ARN"
+    Value: !Ref CreditApprovalProcessFlow
+  CreditApprovalProcessFlowRole:
+    Description: "IAM Role created for credit approval"
+    Value: !GetAtt CreditApprovalProcessFlowRole.Arn

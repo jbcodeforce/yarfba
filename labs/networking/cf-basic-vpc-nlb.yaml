@@ -1,0 +1,143 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Metadata:
+  License: Apache-2.0
+Description: 'Create an Amazon EC2 instance running the Amazon Linux AMI. The AMI is chosen based
+  on the region in which the stack is run. This example creates an EC2 security group
+  for the instance to give you SSH access'
+Parameters:
+  LatestAmiId:
+    Type:  'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+Resources:
+  NewKeyPair:
+    Type: 'AWS::EC2::KeyPair'
+    Properties: 
+      KeyName: tutorial-key-pair
+  RedisVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+      - Key: stack
+        Value: tutorial
+      - Key: "Network"
+        Value: "Public"
+      - Key: "Name"
+        Value: RedisVPC
+  PublicSubnet0:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: "RedisVPC"
+      CidrBlock: 10.0.0.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+      - Key: stack
+        Value: tutorial
+      - Key: "Name"
+        Value: RedisVPC-public-0
+  InternetGateway:
+    Type: "AWS::EC2::InternetGateway"
+    Properties:
+      Tags:
+        - Key: "Application"
+          Value:
+            Ref: "AWS::StackName"
+        - Key: "Network"
+          Value: "Public"
+        - Key: "Name"
+          Value: "RedisVPC-IGW"
+  GatewayToInternet:
+    Type: "AWS::EC2::VPCGatewayAttachment"
+    Properties:
+      VpcId:
+        Ref: "RedisVPC"
+      InternetGatewayId:
+        Ref: "InternetGateway"
+  PublicRouteTable:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId:
+        Ref: "RedisVPC"
+      Tags:
+        - Key: "Application"
+          Value:
+            Ref: "AWS::StackName"
+        - Key: "Network"
+          Value: "Public"
+        - Key: "Name"
+          Value: !Join
+            - ''
+            - - !Ref "VPCName"
+              - '-public-route-table'
+  PublicRoute:
+    Type: "AWS::EC2::Route"
+    DependsOn: "GatewayToInternet"
+    Properties:
+      RouteTableId:
+        Ref: "PublicRouteTable"
+      DestinationCidrBlock: "0.0.0.0/0"
+      GatewayId:
+        Ref: "InternetGateway"
+  PublicSubnetRouteTableAssociation0:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId:
+        Ref: "PublicSubnet0"
+      RouteTableId:
+        Ref: "PublicRouteTable"
+  RedisServer:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref 'LatestAmiId'     
+      InstanceType: 't2.micro'
+      SecurityGroupIds: [!Ref 'InstanceSecurityGroup']
+      KeyName:
+        Ref: 'NewKeyPair'
+      UserData:
+        Fn::Base64: !Sub |
+          sudo yum -y install gcc make
+          cd /usr/local/src 
+          sudo wget http://download.redis.io/redis-stable.tar.gz
+          sudo tar xvzf redis-stable.tar.gz
+          sudo rm -f redis-stable.tar.gz
+          cd redis-stable
+          sudo yum groupinstall "Development Tools"
+          sudo make distclean
+          sudo make
+          sudo yum install -y tcl
+          sudo cp src/redis-server /usr/local/bin/
+          sudo cp src/redis-cli /usr/local/bin/
+          redis-server --protected-mode no
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable Redis port 6379 and SSH
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 6379
+        ToPort: 6379
+        CidrIp: 0.0.0.0/0
+Outputs:
+  VPCId:
+    Description: "VPCId of VPC"
+    Value:
+      Ref: "VPC"
+  InstanceId:
+    Description: InstanceId of the newly created EC2 instance
+    Value: !Ref 'RedisServer'
+  AZ:
+    Description: Availability Zone of the newly created EC2 instance
+    Value: !GetAtt [RedisServer, AvailabilityZone]
+  PublicDNS:
+    Description: Public DNSName of the newly created EC2 instance
+    Value: !GetAtt [RedisServer, PublicDnsName]
+  PublicIP:
+    Description: Public IP address of the newly created EC2 instance
+    Value: !GetAtt [RedisServer, PublicIp]

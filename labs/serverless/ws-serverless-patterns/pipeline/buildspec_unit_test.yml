@@ -1,0 +1,14 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+  build:
+    commands:
+      # trigger the unit tests here
+      - echo 'Running unit tests'
+      # Install all dependencies (including dependencies for running tests)
+      - pip install -r requirements.txt
+      - pip install -r ./tests/requirements.txt       
+      # Discover and run unit tests in the 'tests/unit' directory
+      - python -m pytest tests/unit -v

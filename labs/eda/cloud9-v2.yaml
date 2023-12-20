@@ -1,0 +1,41 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: Cloud9 to work on the solution
+
+######################################
+# MAPPINGS
+######################################
+Mappings:
+  C9InstanceType:
+    us-east-1:
+      Value: t2.large
+    us-west-2:
+      Value: t3.large
+    eu-west-1:
+      Value: t3.large
+    eu-central-1:
+      Value: t3.large
+    ap-northeast-1:
+      Value: t3.large
+    ap-southeast-1:
+      Value: t3.large
+    ap-southeast-2:
+      Value: t3.large
+
+Resources:
+
+  Cloud9:
+    Type: AWS::Cloud9::EnvironmentEC2
+    Properties:
+      AutomaticStopTimeMinutes: 30
+      Description: Building event-driven architectures on AWS Workspace
+      InstanceType: !FindInMap [C9InstanceType, !Ref AWS::Region, Value]
+      Name: "event-driven-architectures-workshop-workspace"
+      ImageId: amazonlinux-2-x86_64
+
+Outputs:
+
+  Cloud9DevEnvUrl:
+    Description: Cloud9 Development Environment
+    Value: !Sub "https://${AWS::Region}.console.aws.amazon.com/cloud9/ide/${Cloud9}"

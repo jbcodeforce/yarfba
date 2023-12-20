@@ -1,0 +1,8 @@
+{
+    "amount": 300000,
+    "borrower": "John, Doe",
+    "employment": "Self",
+    "email": "john.dow@email.com",
+    "property_value": 540000,
+    "address": {"street": "123 Main St", "state": "NY", "city": "New York", "zip": "10001"}
+}

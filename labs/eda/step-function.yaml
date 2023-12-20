@@ -1,0 +1,68 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: Step function to process the order, adding the id back to the event source for the orders
+
+Resources:
+  StepFunctionsServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action:
+              - "sts:AssumeRole"
+            Principal:
+              Service: !Sub "states.${AWS::Region}.amazonaws.com"
+      Policies:
+        - PolicyName: "EventBridgeServiceIntegration"
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: "Allow"
+              Action:
+                - "events:PutEvents"
+              Resource: '*'
+
+  OrdersStateMachine:
+    Type: "AWS::StepFunctions::StateMachine"
+    Properties:
+      StateMachineName: OrderProcessing
+      RoleArn: !GetAtt StepFunctionsServiceRole.Arn
+      DefinitionString: !Sub |-
+        {
+          "Comment": "Processes an Order received from the EventBridge Subscription",
+          "StartAt": "ProcessOrder",
+          "States": {
+            "ProcessOrder": {
+              "Type": "Pass",
+              "Next": "PublishOrderProcessedEvent"
+            },
+            "PublishOrderProcessedEvent": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::events:putEvents",
+              "Parameters": {
+                "Entries": [
+                  {
+                    "Detail": {
+                      "OrderId": "new_id",
+                      "OrderDetails.$": "$.detail"
+                    },
+                    "DetailType": "Order Processed",
+                    "EventBusName": "Orders",
+                    "Source": "com.aws.orders"
+                  }
+                ]
+              },
+              "End": true
+            }
+          }
+        }
+
+
+
+
+

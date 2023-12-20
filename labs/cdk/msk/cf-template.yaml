@@ -1,0 +1,456 @@
+{
+ "Resources": {
+  "AcrMSKSecurityGroup34AC9342": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "MskStack/AcrMSKSecurityGroup",
+    "GroupName": "AcrMSKSecurityGroup",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "VpcId": "vpc-0de635ea40d1deac8"
+   },
+   "Metadata": {
+    "aws:cdk:path": "MskStack/AcrMSKSecurityGroup/Resource"
+   }
+  },
+  "AcrClusterE764B3C7": {
+   "Type": "AWS::MSK::Cluster",
+   "Properties": {
+    "BrokerNodeGroupInfo": {
+     "ClientSubnets": [
+      "subnet-0435671aa5773d6ea",
+      "subnet-03471b4de67e0b0e5"
+     ],
+     "InstanceType": "kafka.kafka.t3.small",
+     "SecurityGroups": [
+      {
+       "Fn::GetAtt": [
+        "AcrMSKSecurityGroup34AC9342",
+        "GroupId"
+       ]
+      }
+     ],
+     "StorageInfo": {
+      "EBSStorageInfo": {
+       "VolumeSize": 10
+      }
+     }
+    },
+    "ClusterName": "AcrCluster",
+    "KafkaVersion": "3.4.0",
+    "NumberOfBrokerNodes": 2,
+    "ClientAuthentication": {
+     "Sasl": {
+      "Iam": {
+       "Enabled": true
+      }
+     }
+    },
+    "EncryptionInfo": {
+     "EncryptionInTransit": {
+      "ClientBroker": "TLS",
+      "InCluster": true
+     }
+    },
+    "LoggingInfo": {
+     "BrokerLogs": {
+      "CloudWatchLogs": {
+       "Enabled": false
+      },
+      "Firehose": {
+       "Enabled": false
+      },
+      "S3": {
+       "Enabled": false
+      }
+     }
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "MskStack/AcrCluster/Resource"
+   }
+  },
+  "AcrClusterBootstrapBrokersBootstrapBrokerString6A9838E2": {
+   "Type": "Custom::AWS",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "AWS679f53fac002430cb0da5b7982bd22872D164C4C",
+      "Arn"
+     ]
+    },
+    "Create": {
+     "Fn::Join": [
+      "",
+      [
+       "{\"service\":\"Kafka\",\"action\":\"getBootstrapBrokers\",\"parameters\":{\"ClusterArn\":\"",
+       {
+        "Ref": "AcrClusterE764B3C7"
+       },
+       "\"},\"physicalResourceId\":{\"id\":\"BootstrapBrokers\"}}"
+      ]
+     ]
+    },
+    "Update": {
+     "Fn::Join": [
+      "",
+      [
+       "{\"service\":\"Kafka\",\"action\":\"getBootstrapBrokers\",\"parameters\":{\"ClusterArn\":\"",
+       {
+        "Ref": "AcrClusterE764B3C7"
+       },
+       "\"},\"physicalResourceId\":{\"id\":\"BootstrapBrokers\"}}"
+      ]
+     ]
+    },
+    "InstallLatestAwsSdk": false
+   },
+   "DependsOn": [
+    "AcrClusterBootstrapBrokersBootstrapBrokerStringCustomResourcePolicy41F619DD"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "MskStack/AcrCluster/BootstrapBrokersBootstrapBrokerString/Resource/Default"
+   }
+  },
+  "AcrClusterBootstrapBrokersBootstrapBrokerStringCustomResourcePolicy41F619DD": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "kafka:GetBootstrapBrokers",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "AcrClusterE764B3C7"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "AcrClusterBootstrapBrokersBootstrapBrokerStringCustomResourcePolicy41F619DD",
+    "Roles": [
+     {
+      "Ref": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "MskStack/AcrCluster/BootstrapBrokersBootstrapBrokerString/CustomResourcePolicy/Resource"
+   }
+  },
+  "AcrMSKrole9B71F1BD": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ec2.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Description": "Role external client can assume to do action on MSK",
+    "RoleName": "msk-role"
+   },
+   "Metadata": {
+    "aws:cdk:path": "MskStack/AcrMSKrole/Resource"
+   }
+  },
+  "AcrClusterPolicy93994131": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "kafka-cluster:Connect",
+        "kafka-cluster:DescribeCluster",
+        "kafka:Get*"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "AcrClusterE764B3C7"
+       }
+      },
+      {
+       "Action": [
+        "kafka-cluster:AlterGroup",
+        "kafka-cluster:CreateTopic",
+        "kafka-cluster:DescribeGroup",
+        "kafka-cluster:DescribeTopic",
+        "kafka-cluster:ReadData",
+        "kafka-cluster:WriteData"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          {
+           "Ref": "AcrClusterE764B3C7"
+          },
+          "/*"
+         ]
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "AcrClusterPolicy93994131",
+    "Roles": [
+     {
+      "Ref": "AcrMSKrole9B71F1BD"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "MskStack/AcrClusterPolicy/Resource"
+   }
+  },
+  "Ec2BastionEC2basicSG0530751A": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "SecurityGroup for EC2 subnet",
+    "GroupName": "EC2basicSG",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "SecurityGroupIngress": [
+     {
+      "CidrIp": "10.10.0.0/16",
+      "Description": "allow ssh access from the VPC",
+      "FromPort": 22,
+      "IpProtocol": "tcp",
+      "ToPort": 22
+     }
+    ],
+    "VpcId": "vpc-06990b2a6b570f82e"
+   },
+   "Metadata": {
+    "aws:cdk:path": "MskStack/Ec2Bastion/EC2basicSG/Resource"
+   }
+  },
+  "Ec2BastionmyHttpdEC2InstanceRole92EF9190": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ec2.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "myKafkaClient"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "MskStack/Ec2Bastion/myHttpdEC2/InstanceRole/Resource"
+   }
+  },
+  "Ec2BastionmyHttpdEC2InstanceProfile5958A58D": {
+   "Type": "AWS::IAM::InstanceProfile",
+   "Properties": {
+    "Roles": [
+     {
+      "Ref": "Ec2BastionmyHttpdEC2InstanceRole92EF9190"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "MskStack/Ec2Bastion/myHttpdEC2/InstanceProfile"
+   }
+  },
+  "Ec2BastionmyHttpdEC2050359F7": {
+   "Type": "AWS::EC2::Instance",
+   "Properties": {
+    "AvailabilityZone": "us-west-2a",
+    "IamInstanceProfile": {
+     "Ref": "Ec2BastionmyHttpdEC2InstanceProfile5958A58D"
+    },
+    "ImageId": {
+     "Ref": "SsmParameterValueawsserviceamiamazonlinuxlatestamzn2amihvmx8664gp2C96584B6F00A464EAD1953AFF4B05118Parameter"
+    },
+    "InstanceType": "t2.micro",
+    "KeyName": "my-ec2-key-pair",
+    "SecurityGroupIds": [
+     {
+      "Fn::GetAtt": [
+       "Ec2BastionEC2basicSG0530751A",
+       "GroupId"
+      ]
+     }
+    ],
+    "SubnetId": "subnet-04270926d8764fc33",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "myKafkaClient"
+     }
+    ],
+    "UserData": {
+     "Fn::Base64": "#!/bin/bash\nyum update -y\nyum install -y java-11\nwget https://archive.apache.org/dist/kafka/3.4.1/kafka_2.12-3.4.1.tgz\ntar -xzf kafka_2.12-3.4.1.tgz \ncd kafka_2.12-3.4.1/libs\n# download the Amazon MSK IAM JAR file under kafka_2.12-<>/libs\nwget https://github.com/aws/aws-msk-iam-auth/releases/download/v1.1.7/aws-msk-iam-auth-1.1.7-all.jar\ncd ..\necho \"security.protocol=SASL_SSL\" >> bin/client.properties\necho \"sasl.mechanism=AWS_MSK_IAM\" >> bin/client.properties\necho \"sasl.jaas.config=software.amazon.msk.auth.iam.IAMLoginModule required;\" >> bin/client.properties\necho \"sasl.client.callback.handler.class=software.amazon.msk.auth.iam.IAMClientCallbackHandler\" >> bin/client.properties"
+    }
+   },
+   "DependsOn": [
+    "Ec2BastionmyHttpdEC2InstanceRole92EF9190"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "MskStack/Ec2Bastion/myHttpdEC2/Resource"
+   }
+  },
+  "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "MskStack/AWS679f53fac002430cb0da5b7982bd2287/ServiceRole/Resource"
+   }
+  },
+  "AWS679f53fac002430cb0da5b7982bd22872D164C4C": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-403993201276-us-west-2",
+     "S3Key": "d62cd506a0f4ef6a29d7a97e2a02d80bc8248142ce428543cfbf0d84b3c116a2.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
+      "Arn"
+     ]
+    },
+    "Handler": "index.handler",
+    "Runtime": "nodejs18.x",
+    "Timeout": 120
+   },
+   "DependsOn": [
+    "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "MskStack/AWS679f53fac002430cb0da5b7982bd2287/Resource",
+    "aws:asset:path": "asset.d62cd506a0f4ef6a29d7a97e2a02d80bc8248142ce428543cfbf0d84b3c116a2",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/11Qy26DMBD8Fu7GIeHQHttEatVTEf0AtHGcxMEP5F0rQoh/70Ihanva2Z21Z2d28vlJDkUGd8zVqc2tOcrhi0C1otYYUlRaMNcMWu2Y0CpFQ/17DKkTh7P/O/jwSOD5BTMrHoXDVvLgYBOSjsKCO56A/zL+YjUF/5a8IhO8eADeXvEoDDg5VMEa1U/EgupgZ5m1rnJVDGdjWRXLBhA1oXydCvdyn1SraQ/ItOJjgmvi4pG37niYZw/b/1sW+4U/E3WJ5osggtOTtVmJw7uwtVEUOdjuCrLIXpZ0N1PlOBZiSWQUVU/X4Del3G5lmd3QmDwmT8ZpWf/Ubzq7LpKnAQAA"
+   },
+   "Metadata": {
+    "aws:cdk:path": "MskStack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "Ec2BastionEC2information10A3FBC0": {
+   "Description": "BastionHost's Public IP",
+   "Value": {
+    "Fn::GetAtt": [
+     "Ec2BastionmyHttpdEC2050359F7",
+     "PublicIp"
+    ]
+   }
+  },
+  "BootstrapServers": {
+   "Value": {
+    "Fn::GetAtt": [
+     "AcrClusterBootstrapBrokersBootstrapBrokerString6A9838E2",
+     "BootstrapBrokerString"
+    ]
+   }
+  }
+ },
+ "Parameters": {
+  "SsmParameterValueawsserviceamiamazonlinuxlatestamzn2amihvmx8664gp2C96584B6F00A464EAD1953AFF4B05118Parameter": {
+   "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+   "Default": "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
+  },
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

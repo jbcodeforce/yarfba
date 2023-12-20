@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+    CarRidesEventBus:
+      Type: AWS::Events::EventBus
+      Properties:
+          Name: CarRides
+    CarRidesLogGroup: 
+      Type: AWS::Logs::LogGroup
+      Properties: 
+        LogGroupName: "/aws/events/carrides"
+        RetentionInDays: 1
+    CarRidesDevEventRule:
+      Type: AWS::Events::Rule
+      Properties:
+        Name: CarRidesDevRule
+        EventBusName: CarRides
+        Description: Routes to CloudWatch for development
+        State: ENABLED 
+        EventPattern:
+            source:
+              - com.aws.carrides 
+        Targets:
+          - Arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/events/carrides"
+            Id: "CarRidesDevLogs"
+      DependsOn:
+           - CarRidesEventBus

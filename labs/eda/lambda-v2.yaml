@@ -1,0 +1,107 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  InventoryFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: InventoryFunction
+      Handler: index.lambda_handler
+      Runtime: python3.9
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - events:PutEvents
+              Resource: "*"
+            - Effect: Allow
+              Action:
+                - sqs:SendMessage
+              Resource: "*"
+      InlineCode: |
+        import json
+        import logging
+
+        logger = logging.getLogger()
+        logger.setLevel(logging.INFO)
+
+        FORCE_ERROR_ATTRIBUTE_KEY = 'force-error'
+
+        def lambda_handler(event, context):
+          logger.info('{}'.format(event))
+          event_detail = event['detail']
+          order_detail = event_detail['OrderDetails']
+
+          if (FORCE_ERROR_ATTRIBUTE_KEY in order_detail and order_detail[FORCE_ERROR_ATTRIBUTE_KEY]):
+            error_message = 'FAILED! (force-error == true)'
+            logger.error(error_message)
+            raise Exception(error_message)
+
+          return event_detail
+
+  InventoryFunctionInvokeConfig:
+    Type: AWS::Lambda::EventInvokeConfig
+    Properties:
+      FunctionName: !Ref InventoryFunction
+      Qualifier: "$LATEST"
+      MaximumRetryAttempts: 0
+      MaximumEventAgeInSeconds: 21600
+
+  InventoryFunctionDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: InventoryFunctionDLQ
+
+  InventoryEventBus:
+    Type: AWS::Events::EventBus
+    Properties:
+      Name: "Inventory"
+
+  InventoryLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 3
+      LogGroupName: "/aws/events/inventory"
+
+  InventoryDevRule:
+    Type: AWS::Events::Rule
+    Properties:
+      EventBusName: !Ref InventoryEventBus
+      Name: InventoryDevRule
+      EventPattern: !Sub |-
+        { "account": [ "${AWS::AccountId}" ] }
+      Targets:
+        - Id: "InventoryLogs"
+          Arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${InventoryLogGroup}"
+                
+  CWLogsResourcePolicy:
+    Type: AWS::Logs::ResourcePolicy
+    Properties:
+      PolicyName: "EventBridgeToCWLogs"
+      PolicyDocument: !Sub 
+      - >
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "EventBridgetoCWLogsPolicy",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "delivery.logs.amazonaws.com",
+                  "events.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+              ],
+              "Resource": [
+                "${logArn}"
+              ]
+            }
+          ]
+        }
+      - logArn: !GetAtt InventoryLogGroup.Arn

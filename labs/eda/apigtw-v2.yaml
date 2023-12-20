@@ -1,0 +1,146 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: Team template for EventBridge module
+
+Resources:
+  Api:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: eventbridge-api-destination
+      StageName: Prod
+      TracingEnabled: true
+      EndpointConfiguration:
+        Type: REGIONAL
+      MethodSettings:
+        - LoggingLevel: INFO
+          ResourcePath: '/*'
+          HttpMethod: '*'
+          DataTraceEnabled: true
+      DefinitionBody:
+        openapi: "3.0.1"
+        paths:
+          /:
+            post:
+              responses:
+                "200":
+                  description: "200 response"
+                  content:
+                    application/json:
+                      schema:
+                        $ref: "#/components/schemas/Empty"
+              security:
+                - basic-auth: []
+              x-amazon-apigateway-integration:
+                type: "mock"
+                responses:
+                  default:
+                    statusCode: "200"
+                requestTemplates:
+                  application/json: "{\"statusCode\": 200}"
+                passthroughBehavior: "when_no_match"
+        components:
+          schemas:
+            Empty:
+              title: "Empty Schema"
+              type: "object"
+          securitySchemes:
+            basic-auth:
+              type: "apiKey"
+              name: "Authorization"
+              in: "header"
+              x-amazon-apigateway-authtype: "custom"
+              x-amazon-apigateway-authorizer:
+                type: "request"
+                authorizerUri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CustomAuthorizerFunction.Arn}/invocations"
+                authorizerResultTtlInSeconds: 0
+                identitySource: "method.request.header.Authorization"
+
+  CustomAuthorizerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 256
+      Tracing: Active
+      Timeout: 5
+      InlineCode: |
+        exports.handler = async (event) => {
+          console.log(JSON.stringify(event));
+
+          let authorizedUsername = 'myUsername';
+          let authorizedPassword = 'myPassword';
+
+          let authorization = event.headers.Authorization
+          if (!authorization) {
+            return policyDocument('Deny', username, event);
+          }
+
+          let credentials = authorization.split(' ')[1]
+          let [username, password] = (Buffer.from(credentials, 'base64')).toString().split(':')
+          if (!(username === authorizedUsername && password === authorizedPassword)) {
+            return policyDocument('Deny', username, event);
+          }
+
+          return policyDocument('Allow', username, event);
+        };
+
+        function policyDocument(effect, username, event) {
+          let methodArn = event.methodArn.split(':');
+          let apiGatewayArn = methodArn[5].split('/');
+          let accountId = methodArn[4];
+          let region = methodArn[3];
+          let restApiId = apiGatewayArn[0];
+          let stage = apiGatewayArn[1];
+
+          return {
+            principalId: username,
+            policyDocument: {
+              Version: '2012-10-17',
+              Statement: [
+                {
+                  Action: 'execute-api:Invoke',
+                  Effect: effect,
+                  Resource: `arn:aws:execute-api:${region}:${accountId}:${restApiId}/${stage}/*/*`
+                }
+              ]
+            }
+          };
+        };
+  
+  CustomAuthorizerPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: "lambda:InvokeFunction"
+      FunctionName: !Ref CustomAuthorizerFunction
+      Principal: "apigateway.amazonaws.com"
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${Api}/authorizers/*"
+  
+  ApiGatewayCloudWatchLogRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - apigateway.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
+  
+  ApiGatewayAccount:
+    Type: AWS::ApiGateway::Account
+    Properties:
+      CloudWatchRoleArn: !GetAtt ApiGatewayCloudWatchLogRole.Arn
+    DependsOn: Api
+
+
+Outputs:
+  ApiUrl:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${Api}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+
+

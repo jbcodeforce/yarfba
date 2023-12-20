@@ -1,0 +1,890 @@
+Description: |
+  Policy Evaluation Workshop
+Parameters:
+  VpcCIDR:
+    Type: String
+    Default: 10.2.0.0/16
+    Description: CIDR range for VPC
+
+  PublicSubnet1CIDR:
+    Type: String
+    Default: 10.2.1.0/24
+    Description: CIDR range for Public Subnet A
+
+  PublicSubnet2CIDR:
+    Type: String
+    Default: 10.2.2.0/24
+    Description: CIDR range for Public Subnet B
+
+  PublicSubnet3CIDR:
+    Type: String
+    Default: 10.2.3.0/24
+    Description: CIDR range for Public Subnet C
+
+  PrivateSubnet1CIDR:
+    Type: String
+    Default: 10.2.4.0/24
+    Description: CIDR range for Private Subnet A
+
+  PrivateSubnet2CIDR:
+    Type: String
+    Default: 10.2.5.0/24
+    Description: CIDR range for Private Subnet B
+
+  PrivateSubnet3CIDR:
+    Type: String
+    Default: 10.2.6.0/24
+    Description: CIDR range for Private Subnet C
+
+  InstanceType:
+    Type: String
+    Default: t3.micro
+    Description: Instance type used in the lab
+
+Resources:
+
+  #########################
+  #
+  # VPC AND SUBNETS
+  #
+  #########################
+  AppVPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: !Ref VpcCIDR
+      InstanceTenancy: default
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+
+  PublicSubnetA:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref AppVPC
+      CidrBlock: !Ref PublicSubnet1CIDR
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: !Sub  "${AWS::Region}a"
+
+  PublicSubnetB:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref AppVPC
+      CidrBlock: !Ref PublicSubnet2CIDR
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: !Sub  "${AWS::Region}b"
+
+  PublicSubnetC:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref AppVPC
+      CidrBlock: !Ref PublicSubnet3CIDR
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: !Sub  "${AWS::Region}c"
+
+  PrivateSubnetA:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref AppVPC
+      CidrBlock: !Ref PrivateSubnet1CIDR
+      AvailabilityZone: !Sub  "${AWS::Region}a"
+
+  PrivateSubnetB:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref AppVPC
+      CidrBlock: !Ref PrivateSubnet2CIDR
+      AvailabilityZone: !Sub  "${AWS::Region}b"
+
+  PrivateSubnetC:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref AppVPC
+      CidrBlock: !Ref PrivateSubnet3CIDR
+      AvailabilityZone: !Sub  "${AWS::Region}c"
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref AppVPC
+
+  NatGatewayEIP:
+    Type: AWS::EC2::EIP
+    DependsOn: InternetGatewayAttachment
+
+  NatGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NatGatewayEIP.AllocationId
+      SubnetId: !Ref PublicSubnetA
+
+  #########################
+  #
+  # ROUTE TABLES
+  #
+  #########################
+
+  PrivateRouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref AppVPC
+
+  DefaultPrivateRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway
+
+  PrivateSubnetRouteTableAssociation1:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PrivateSubnetA
+
+  PrivateSubnetRouteTableAssociation2:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PrivateSubnetB
+
+  PrivateSubnetRouteTableAssociation3:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PrivateSubnetC
+  
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref AppVPC
+
+  DefaultPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnetARouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnetA
+
+  PublicSubnetBRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnetB
+
+  PublicSubnetCRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnetC
+
+  #########################
+  #
+  # SECURITY GROUPS
+  #
+  #########################
+      
+  VPCEndpointSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Allow TLS for VPC Endpoint
+      VpcId: !Ref AppVPC
+      SecurityGroupIngress:
+        - IpProtocol: "-1"
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !GetAtt AppVPC.CidrBlock
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+
+  AppSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'Security Group for Policy Evaluation Workshop Cloud9 lab'
+      VpcId: !Ref AppVPC
+      SecurityGroupEgress:
+        - IpProtocol: "-1"
+          CidrIp: 0.0.0.0/0
+
+  #########################
+  #
+  # CLOUD9 Lab
+  #
+  #########################
+
+  LabCloud9Environment:
+    DependsOn:
+    - Cloud9SSMRole
+    - NatGateway
+    Type: AWS::Cloud9::EnvironmentEC2
+    Properties:
+      AutomaticStopTimeMinutes: 30
+      ConnectionType: CONNECT_SSM
+      Description: Development environment for the Policy Evaluation Workshop
+      ImageId: amazonlinux-2-x86_64
+      SubnetId: !Ref PrivateSubnetA
+      InstanceType: !Ref InstanceType
+      Name: Policy Evaluation Workshop
+
+  Cloud9SSMRole:
+    Type: Custom::Cloud9SSMRole
+    Properties:
+      ServiceToken: !GetAtt Cloud9SSMRoleFunction.Arn
+
+  Cloud9SSMRoleFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: |
+          import boto3
+          import os
+          import cfnresponse
+          iam_client = boto3.client('iam')
+          aws_region = os.environ['AWS_REGION']
+
+          def create_role():
+              role_name = 'AWSCloud9SSMAccessRole'
+              instance_profile_name = 'AWSCloud9SSMInstanceProfile'
+              iam = boto3.resource('iam')
+              role = iam.Role(role_name)
+              role_exists = False
+              try:
+                  role.role_id
+                  print(f"{role_name} exists.")
+                  role_exists = True
+              except:
+                  print(f"{role_name} not found.")
+                  role_exists = False
+
+              if not role_exists:
+                  try:
+                      print(f"Creating {role_name} role.")
+                      create_role_response = iam_client.create_role(
+                          Path='/service-role/',
+                          RoleName=role_name,
+                          AssumeRolePolicyDocument='{"Version": "2012-10-17","Statement": [{"Effect": "Allow", "Principal":{"Service": ["cloud9.amazonaws.com", "ec2.amazonaws.com"]},"Action": ["sts:AssumeRole"]}]}'
+                      )
+                      waiter = iam_client.get_waiter('role_exists')
+                      waiter.wait(RoleName=create_role_response['Role']['RoleName'],WaiterConfig={'Delay': 1,'MaxAttempts':120})
+                      role_exists = True
+                  except Exception as e:
+                      print(e)
+                      return role_exists
+              iam_client.attach_role_policy(
+                  RoleName=role.role_name,
+                  PolicyArn='arn:aws:iam::aws:policy/AWSCloud9SSMInstanceProfile'
+              )
+              iam_client.attach_role_policy(
+                  RoleName=role.role_name,
+                  PolicyArn='arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore'
+              )
+
+              instance_profile = iam.InstanceProfile(instance_profile_name)
+              ip_exists = False
+              try:
+                  instance_profile.instance_profile_id
+                  print(f"{instance_profile_name} exists.")
+                  ip_exists = True
+              except:
+                  print(f"{instance_profile_name} not found.")
+                  ip_exists = False
+              
+              if not ip_exists:
+                  try:
+                      print(f"Creating {instance_profile_name} instance profile.")
+                      create_instance_profile_response = iam_client.create_instance_profile(
+                          InstanceProfileName=instance_profile_name,
+                          Path='/cloud9/'
+                      )
+                      waiter = iam_client.get_waiter('instance_profile_exists')
+                      waiter.wait(InstanceProfileName=create_instance_profile_response['InstanceProfile']['InstanceProfileName'],WaiterConfig={'Delay': 1,'MaxAttempts': 120})
+                      ip_exists = True
+                  except Exception as e:
+                      print(e)
+                      return ip_exists
+              if len(instance_profile.roles) < 1:
+                  iam_client.add_role_to_instance_profile(
+                      InstanceProfileName=instance_profile.instance_profile_name,
+                      RoleName=role.role_name
+                  )
+
+              return role_exists and ip_exists 
+
+          def lambda_handler(event, context):
+              print(event)
+
+              success = False
+              if event['RequestType'] == 'Create':
+                  success = create_role()
+              else:
+                  success = True
+
+              if success:
+                  cfnresponse.send(event, context, cfnresponse.SUCCESS, {}, event["RequestId"])
+              else:
+                  cfnresponse.send(event, context, cfnresponse.FAILED, {}, event["RequestId"])
+      Handler: index.lambda_handler
+      Runtime: python3.9
+      Timeout: 300
+      Role: !GetAtt Cloud9SSMRoleFunctionRole.Arn
+
+  Cloud9SSMRoleFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      ManagedPolicyArns: 
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+      - PolicyName: root
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - iam:CreateRole
+            - iam:GetRole
+            - iam:AttachRolePolicy
+            - iam:PassRole
+            - iam:DeleteRole
+            Resource: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:role/service-role/AWSCloud9SSMAccessRole
+          - Effect: Allow 
+            Action:
+            - iam:CreateInstanceProfile
+            - iam:GetInstanceProfile
+            - iam:AddRoleToInstanceProfile
+            - iam:DeleteInstanceProfile
+            Resource: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:instance-profile/cloud9/AWSCloud9SSMInstanceProfile
+
+  UpdateC9Env:
+    Type: Custom::UpdateC9Env
+    DependsOn: 
+    - LabCloud9Environment
+    - DataS3Bucket
+    Properties:
+      ServiceToken: !GetAtt UpdateC9EnvFunction.Arn
+
+  UpdateC9EnvFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: |
+          import boto3
+          import cfnresponse
+          import os
+          import time
+          from botocore.auth import SigV4Auth
+          from botocore.awsrequest import AWSRequest
+          import urllib3
+          import traceback
+          import json
+
+          ssm_client = boto3.client('ssm')
+          ec2_client = boto3.client('ec2')
+          s3_client = boto3.client('s3')
+          http = urllib3.PoolManager()
+
+          aws_region = os.environ['AWS_REGION']
+
+          def signed_request(method, url, data=None, params=None, headers=None):
+              session = boto3.Session()
+              credentials = session.get_credentials()
+              creds = credentials.get_frozen_credentials()
+              
+              payload = json.dumps(data).encode('utf-8')
+              request = AWSRequest(method=method, url=url, data=payload, params=params, headers=headers)
+              SigV4Auth(creds, "cloud9", aws_region).add_auth(request)
+              return http.request(
+                  method,
+                  url,
+                  body=payload,
+                  headers=request.headers
+              )
+
+          def get_commands(environment_id, workshop_role_arn, data_s3_bucket_name, permission_boundary_name, s3_vpcendpoint_id):
+              workshop_role_name = workshop_role_arn.split('/',1)[1]
+
+              # permissions_boundary_name is really the ARN
+              pb_name = permission_boundary_name.split('/', 1)[1]
+
+              return f"""
+          #rm /home/ec2-user/.aws/credentials
+          #curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          #unzip awscliv2.zip
+          #./aws/install
+          #rm -Rf aws && rm awscliv2.zip
+
+          yum install jq -y
+          echo "export AWS_DEFAULT_REGION={aws_region}" >> /home/ec2-user/.bash_profile
+          echo "export IAM_LAB_ROLE_ARN={workshop_role_arn}" >> /home/ec2-user/.bash_profile
+          echo "export IAM_LAB_ROLE_NAME={workshop_role_name}" >> /home/ec2-user/.bash_profile
+          echo "export S3_LAB_BUCKET_NAME={data_s3_bucket_name}" >> /home/ec2-user/.bash_profile
+          echo "export S3_VPC_ENDPOINT_ID={s3_vpcendpoint_id}" >> /home/ec2-user/.bash_profile
+          echo "export IAM_LAB_PERMISSION_BOUNDARY_NAME={pb_name}" >> /home/ec2-user/.bash_profile
+          echo "export IAM_LAB_PERMISSION_BOUNDARY_ARN={permission_boundary_name}" >> /home/ec2-user/.bash_profile
+          #echo "aws cloud9 update-environment --environment-id {environment_id} --managed-credentials-action 'DISABLE' 2&>/dev/null" >> /home/ec2-user/.bash_profile
+          """
+
+          def swap_role(instance_id, new_role_arn):
+              try:
+                  resp = ec2_client.describe_iam_instance_profile_associations(
+                      Filters=[
+                          {
+                              'Name': 'instance-id',
+                              'Values': [
+                                  instance_id,
+                              ]
+                          },
+                          {
+                              'Name': 'state',
+                              'Values': [
+                                  'associated',
+                              ]
+                          },
+                          
+                      ]
+                  )
+                  current_association_id = resp['IamInstanceProfileAssociations'][0]['AssociationId']
+                  
+                  disassociated = ec2_client.disassociate_iam_instance_profile(
+                      AssociationId=current_association_id
+                  ).get('IamInstanceProfileAssociation', {})  
+                  state = disassociated.get('State', 'disassociated')
+                  
+                  if state != 'disassociated': 
+                      time.sleep(15)
+                  print("Attaching {} to {}".format(new_role_arn, instance_id))
+                  ec2_client.associate_iam_instance_profile(
+                      IamInstanceProfile={'Arn': new_role_arn},
+                      InstanceId=instance_id                     
+                  )    
+              
+                  return True
+              except Exception as e:
+                  print(e)
+                  return False
+
+          def customize_c9_instance(instance_id, environment_id, workshop_role_arn, data_s3_bucket_name, permission_boundary_name, s3_vpcendpoint_id):
+              commands = get_commands(environment_id, workshop_role_arn, data_s3_bucket_name, permission_boundary_name, s3_vpcendpoint_id)
+
+              try:
+                  ssm_client.send_command(
+                      InstanceIds=[instance_id],
+                      DocumentName='AWS-RunShellScript',
+                      Parameters={'commands': commands.split('\n')},
+                      CloudWatchOutputConfig={
+                          'CloudWatchLogGroupName': f'ssm-output-{instance_id}',
+                          'CloudWatchOutputEnabled': True
+                      }
+                  )
+                  #TODO: SSM is eventually consistent on send command
+                  #print("Waiting for send command to complete")
+                  #waiter = ssm_client.get_waiter('command_executed')
+                  #waiter.wait(CommandId=send_command_response['Command']['CommandId'], InstanceId=instance_id)
+                  print("Send command complete")
+                  return True
+              except Exception as e:
+                  print(e)
+                  return False
+
+          def disable_temporary_credentials(environment_id):
+              try:
+                  url = f"https://cloud9."+ aws_region +".amazonaws.com"
+                  data = {
+                      "managedCredentialsAction":"DISABLE",
+                      "environmentId": environment_id
+                  }
+                  headers = {'Content-Type': 'application/x-amz-json-1.1', 'X-Amz-Target': 'AWSCloud9WorkspaceManagementService.UpdateEnvironment'}
+                  response = signed_request(method='POST', url=url, data=data, headers=headers)
+                  print(response.data)
+                  return response.status == 200
+              except Exception as e:
+                  print(traceback.format_exc())
+                  print(e)
+                  return False
+
+          def share_c9_instance(environment_id, aws_account_id):
+              try:
+                  url = f"https://cloud9."+ aws_region +".amazonaws.com"
+                  data = {
+                    "environmentId": environment_id, 
+                    "permissions": "read-write", 
+                    "userArn": "arn:aws:iam::" + aws_account_id + ":root"
+                  }
+                  headers = {'Content-Type': 'application/x-amz-json-1.1', 'X-Amz-Target': 'AWSCloud9WorkspaceManagementService.CreateEnvironmentMembership'}
+                  response = signed_request(method='POST', url=url, data=data, headers=headers)
+                  print(response.data)
+                  return response.status == 200
+              except Exception as e:
+                  print(traceback.format_exc())
+                  print(e)
+                  return False
+
+          def lambda_handler(event, context):
+              print(event)
+
+              aws_account_id = context.invoked_function_arn.split(":")[4]
+              environment_id = os.environ.get('EnvironmentID')
+              target_instance_role_arn = os.environ.get('Cloud9InstanceRoleArn')
+              workshop_role_arn = os.environ.get('WorkshopRoleArn')
+              data_s3_bucket_name = os.environ.get('DataS3BucketName')
+              permission_boundary_name = os.environ.get('PermissionBoundaryName')
+              s3_vpcendpoint_id = os.environ.get('S3VpcEndpointId')
+
+
+              response = ec2_client.describe_instances(Filters=[{'Name': 'tag:aws:cloud9:environment','Values': [environment_id]}])
+              instance_id = response['Reservations'][0]['Instances'][0]['InstanceId']
+
+              success = False
+              if event['RequestType'] == 'Create':
+                  s3_client.put_object(Body = b'', Bucket = data_s3_bucket_name, Key = 'it-works')
+                  #success = disable_temporary_credentials(environment_id) and share_c9_instance(environment_id, aws_account_id)
+                  #if success:
+                  success = swap_role(instance_id, target_instance_role_arn) and customize_c9_instance(instance_id, environment_id, workshop_role_arn, data_s3_bucket_name, permission_boundary_name, s3_vpcendpoint_id)
+              else:
+                  success = True
+
+              if success:
+                  cfnresponse.send(event, context, cfnresponse.SUCCESS, {}, event["RequestId"])
+              else:
+                  cfnresponse.send(event, context, cfnresponse.FAILED, {}, event["RequestId"])
+      Handler: index.lambda_handler
+      Runtime: python3.9
+      Timeout: 600
+      Environment:
+        Variables:
+          EnvironmentID: !Ref LabCloud9Environment
+          Cloud9InstanceRoleArn: !GetAtt LabCloud9EnvironmentInstanceRole.Arn
+          WorkshopRoleArn: !GetAtt WorkshopRole.Arn
+          DataS3BucketName: !Ref DataS3Bucket
+          PermissionBoundaryName: !Ref PolicyEvaluationLabPB
+          S3VpcEndpointId: !Ref VPCEndpointGatewayS3
+      Role: !GetAtt UpdateC9EnvFunctionRole.Arn
+
+  UpdateC9EnvFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      ManagedPolicyArns: 
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/AWSCloud9Administrator
+      Policies:
+      - PolicyName: root
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - ec2:DescribeInstances
+            - ec2:DescribeInstanceStatus
+            - ssm:SendCommand
+            - ssm:GetCommandInvocation
+            Resource: "*"
+          - Effect: Allow
+            Action:
+            - ec2:AssociateIamInstanceProfile
+            - ec2:ReplaceIamInstanceProfileAssociation
+            - ec2:DescribeIamInstanceProfileAssociations
+            - ec2:DisassociateIamInstanceProfile
+            Resource: '*'
+          - Effect: Allow
+            Action:
+            - iam:PassRole
+            Resource:
+            - !GetAtt WorkshopRole.Arn
+          - Effect: Allow
+            Action:
+            - cloud9:UpdateEnvironment
+            Resource: '*'
+          - Effect: Allow
+            Action:
+            - s3:PutObject
+            Resource: !Sub 'arn:aws:s3:::${DataS3Bucket}/it-works'
+
+  #########################
+  #
+  # VPC ENDPOINTS
+  #
+  #########################
+  VPCEndpointGatewayS3:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.s3'
+      VpcEndpointType: Gateway
+      VpcId: !Ref AppVPC
+      RouteTableIds:
+        - !Ref PrivateRouteTable
+  VPCEndpointSSM:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: true
+      SubnetIds:
+        - !Ref PrivateSubnetA
+        - !Ref PrivateSubnetB
+      SecurityGroupIds:
+        - !Ref VPCEndpointSecurityGroup
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.ssm'
+      VpcId: !Ref AppVPC
+      PolicyDocument: 
+        !Sub |
+        {
+           "Version":"2012-10-17",
+           "Statement":[
+              {
+                 "Sid":"SSMVPCEndpointAllowAccessToTrustedPrincipalsAndResources",
+                 "Effect":"Allow",
+                 "Action":"ssm:*",
+                 "Resource":[
+                    "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:*",
+                    "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:*"
+                 ],
+                 "Principal":{
+                    "AWS":"*"
+                 },
+                 "Condition":{
+                    "StringEquals":{
+                       "aws:PrincipalAccount":"${AWS::AccountId}"
+                    }
+                 }
+              }
+           ]
+        }
+  VPCEndpointEC2Messages:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: true
+      SubnetIds:
+        - !Ref PrivateSubnetA
+        - !Ref PrivateSubnetB
+        - !Ref PrivateSubnetC
+      SecurityGroupIds:
+        - !Ref VPCEndpointSecurityGroup
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.ec2messages'
+      VpcId: !Ref AppVPC
+      PolicyDocument: 
+        !Sub |
+        {
+           "Version":"2012-10-17",
+           "Statement":[
+              {
+                 "Sid":"SSMEC2MessagesVPCEndpointAllowAccessToTrustedPrincipals",
+                 "Effect":"Allow",
+                 "Action":"ec2messages:*",
+                 "Resource":"*",
+                 "Principal":{
+                    "AWS":"*"
+                 },
+                 "Condition":{
+                    "StringEquals":{
+                       "aws:PrincipalAccount":"${AWS::AccountId}"
+                    }
+                 }
+              }
+           ]
+        }
+  VPCEndpointSSMMessages:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: true
+      SubnetIds:
+        - !Ref PrivateSubnetA
+        - !Ref PrivateSubnetB
+        - !Ref PrivateSubnetC
+      SecurityGroupIds:
+        - !Ref VPCEndpointSecurityGroup
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.ssmmessages'
+      VpcId: !Ref AppVPC
+      PolicyDocument: 
+        !Sub |
+        {
+           "Version":"2012-10-17",
+           "Statement":[
+              {
+                 "Sid":"SSMMessagesVPCEndpointAllowAccessToTrustedPrincipals",
+                 "Effect":"Allow",
+                 "Action":"ssmmessages:*",
+                 "Resource":"*",
+                 "Principal":{
+                    "AWS":"*"
+                 },
+                 "Condition":{
+                    "StringEquals":{
+                       "aws:PrincipalAccount":"${AWS::AccountId}"
+                    }
+                 }
+              }
+           ]
+        }
+  
+  DataS3Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+
+  WorkshopRole:
+    Type: AWS::IAM::Role
+    Properties: 
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Description: IAM Policy Evaluation workshop role
+      ManagedPolicyArns: 
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+
+  WorkshopLabManagedPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: Policy used with the lab principal in the AWS IAM Policy Evaluation workshop
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - ec2:describeVpcEndpoints
+              - kms:ListKeys
+              - kms:ListAliases
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - ec2:modifyVpcEndpoint
+            Resource: !Sub 'arn:aws:ec2:*:${AWS::AccountId}:vpc-endpoint/${VPCEndpointGatewayS3}'
+          - Effect: Allow
+            Sid: AllowModifyS3Bucket
+            Action:
+              - s3:GetBucketPolicy
+              - s3:PutBucketPolicy
+              - s3:PutEncryptionConfiguration
+            Resource: !GetAtt DataS3Bucket.Arn
+          - Effect: Allow
+            Sid: AllowObjectCleanup
+            Action: s3:DeleteObject
+            Resource: !Sub ${DataS3Bucket.Arn}/*
+          - Effect: Allow
+            Sid: AllowWorkWithLabRole
+            Action:
+              - iam:GetRole
+              - iam:GetRolePolicy
+              - iam:ListRolePolicies
+              - iam:DeleteRolePolicy
+              - iam:PutRolePermissionsBoundary
+              - iam:DeleteRolePermissionsBoundary
+              - iam:PutRolePolicy
+            Resource: !GetAtt WorkshopRole.Arn
+          - Effect: Allow
+            Sid: AllowEditPB
+            Action:
+              - iam:CreatePolicyVersion
+              - iam:GetPolicy
+              - iam:GetPolicyVersion
+            Resource: !Ref PolicyEvaluationLabPB
+          - Effect: Allow
+            Sid: AllowDescribeLabKmsKey
+            Action: kms:DescribeKey
+            Resource: "*"
+            Condition:
+              ForAnyValue:StringEquals:
+                kms:ResourceAliases: "alias/lab-4-key"
+
+      Roles:
+        - !Ref WorkshopRole
+
+  LabCloud9EnvironmentInstanceRole:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles: 
+      - !Ref WorkshopRole
+
+
+  PolicyEvaluationLabPB:
+    Type: AWS::IAM::ManagedPolicy
+    Properties: 
+      Description: Policy used as Permission Boundary for the IAM Policy Evaluation workshop
+      Path: /lab-permissions-boundary/
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Sid: AllowConnectForCloud9
+            Action:
+              - ssmmessages:CreateControlChannel
+              - ssmmessages:CreateDataChannel
+              - ssmmessages:OpenControlChannel
+              - ssmmessages:OpenDataChannel
+              - ssm:DescribeAssociation
+              - ssm:GetDeployablePatchSnapshotForInstance
+              - ssm:GetDocument
+              - ssm:DescribeDocument
+              - ssm:GetManifest
+              - ssm:GetParameter
+              - ssm:GetParameters
+              - ssm:ListAssociations
+              - ssm:ListInstanceAssociations
+              - ssm:PutInventory
+              - ssm:PutComplianceItems
+              - ssm:PutConfigurePackageResult
+              - ssm:UpdateAssociationStatus
+              - ssm:UpdateInstanceAssociationStatus
+              - ssm:UpdateInstanceInformation
+              - ec2messages:AcknowledgeMessage
+              - ec2messages:DeleteMessage
+              - ec2messages:FailMessage
+              - ec2messages:GetEndpoint
+              - ec2messages:GetMessages
+              - ec2messages:SendReply
+            Resource: '*'
+          - Effect: Allow
+            Action: s3:PutBucketPolicy
+            Resource: !GetAtt DataS3Bucket.Arn
+          - Effect: Allow
+            Sid: AllowRemovePermissionsBoundary
+            Action: iam:DeleteRolePermissionsBoundary
+            Resource: !GetAtt WorkshopRole.Arn
+          - Effect: Allow
+            Sid: AllowSelfEdit
+            Action:
+              - iam:CreatePolicyVersion
+              - iam:GetPolicy
+              - iam:GetPolicyVersion
+            Resource: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/lab-permissions-boundary/*

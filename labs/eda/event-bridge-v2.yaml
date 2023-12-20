@@ -1,0 +1,32 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: EventBridge module
+
+Resources:
+  EventBus:
+    Type: AWS::Events::EventBus
+    Properties:
+      Name: Orders
+  OrderLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 1
+      LogGroupName: "/aws/events/orders"
+  OrderToLog:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Catchall rule for development purposes
+      EventBusName: Orders
+      EventPattern:
+        source:
+          - com.aws.orders
+      Name: OrdersDevRule
+      State: ENABLED
+      Targets:
+        - Id: Ide60ca354-ebb9-47d2-ad81-6a52867eb9e6
+          Arn: arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${OrderLogGroup}
+    DependsOn:
+      - EventBus
+
+

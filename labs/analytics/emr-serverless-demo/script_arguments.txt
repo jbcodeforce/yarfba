@@ -1,0 +1,3 @@
+["s3://jb-data-set/dataset_en_dev.json",
+ "s3://jb-data-set/output/reviews/reviews_by_productcategory/",
+"s3://jb-data-set/output/reviews/productcategory_topreview/"]

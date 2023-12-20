@@ -1,0 +1,64 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Master stack: AWS Event-driven Architectures Workshop"
+
+Resources:
+  SolutionSecurity:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: ./security-v2.yaml
+      TimeoutInMinutes: 60
+
+  SNS:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: ./sns-v2.yaml
+      TimeoutInMinutes: 60
+
+  Api:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: ./apigtw-v2.yaml
+      TimeoutInMinutes: 60
+
+  EventBridge:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: ./event-bridge-v2.yaml
+      TimeoutInMinutes: 60
+
+  Cloud9:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: ./cloud9-v2.yaml
+      TimeoutInMinutes: 60
+
+  Lambda:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: ./lambda-v2.yaml
+      TimeoutInMinutes: 60
+
+Outputs:
+  StackRef:
+    Value: !Ref SolutionSecurity
+
+  EventGeneratorConfigurationUrl:
+    Description: Event Generator configuration link
+    Value: !GetAtt SolutionSecurity.Outputs.EventGeneratorConfigurationUrl
+
+  WildRydesSaasPlaygroundConfigurationUrl:
+    Description: Wild Rydes Saas Playground configuration link
+    Value: !GetAtt SolutionSecurity.Outputs.WildRydesSaasPlaygroundConfigurationUrl
+
+  CognitoUsername:
+    Description: Cognito username for use with Event Generator and Wild Rydes SaaS Playground
+    Value: !GetAtt SolutionSecurity.Outputs.CognitoUsername
+
+  CognitoPassword:
+    Description: Event Generator password for use with Event Generator and Wild Rydes SaaS Playground
+    Value: !GetAtt SolutionSecurity.Outputs.CognitoPassword
+
+  ApiUrl:
+    Description: "API Gateway endpoint URL"
+    Value: !GetAtt Api.Outputs.ApiUrl
