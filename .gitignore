@@ -7,4 +7,5 @@ labs/cdk/ec2-basic/cdk.context.json
 labs/messaging/rabbitmq/data/
 **/log/
 **/.aws-sam/
+**/__init__.py
 /labs/bedrock/dependencies/
