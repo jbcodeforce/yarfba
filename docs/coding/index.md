@@ -34,7 +34,7 @@ Also within a EC2 instance, it is possible to use the URL http://169.254.169.254
 
 Supports different programming languages to integrate with a lot of AWS managed services from any business application. 
 
-The [Python AWS SDK is boto3](https://aws.amazon.com/sdk-for-python/). 
+The [Python AWS SDK is boto3](https://aws.amazon.com/sdk-for-python/), with [product doc](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html).
 
 ### Installation
 

@@ -11,6 +11,10 @@ This is a storage on volumes physically residing on the same host that provides 
 
 ![5](./images/storage/ephemeral.png)
 
+???- Info "IOPS 100/3000?"
+    IOPS are a unit of measure representing input/output operations per second. 3000 is max IOPS  and 100 min. Consider the hardware capacity to get the maximum amount of data in a single I/O measured in KiB. I/O size is capped at 256 KiB for SSD volumes and 1,024 KiB for HDD. Some techno like EBS tries to merge physically contiguous operations: a 1,024 KiB will be 4 operations on SSD, or 8 small 32 KiB will be one operation. However on HDD, 8 random operations of 128 KiB I/O will be 8 operations. Throughput = IOPS x allocation unit size per operation. T= 3000 x 64KiB = 187 MB/s. If application uses smaller size requests than the allocation unit, then we can reach max T.
+    Allocation unit size of EBS volume [depends of the volume type](https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/volume_constraints.html).  For gp2 it is 4KiB. But on the cloud data storage on a modern hard drive is managed through **logical block addressing** with a default size to 4KiB. EBS advertises 512-byte sectors to the operating system to do the mappting between logical and physical sector. Block size selection impacts storage max capacity.
+
 If we need to run a high-performance database that requires 210,000 IOPS for its underlying filesystem, we need `instance store` and DB replication in place.
 
 Backup and replication are the user's responsability.
@@ -39,19 +43,33 @@ Objects are stored in a flat structure instead of a hierarchy. We can store almo
 
 ## Amazon Elastic Block Storage EBS
 
-Elastic Block Store Volume is a network drive attached to the EC2 instance. It is locked to one AZ, and uses provisioned capacity in GBs and IOPS. It is HA, every write is replicated multiple times within the same AZ, and can be backed up.
+Elastic Block Store Volume is a network drive attached to the EC2 instance. It is locked to one AZ, and uses provisioned capacity in GBs and IOPS. It is HA, every write is replicated multiple times within the same AZ, and can be backed up to other AZ or Region. Below are the main attributes for a EBS volume.
 
 ![](./images/storage/ebs-volume.png)
 
 * Create a EBS while creating the EC2 instance and keep it. It is not deleted on EC2 shutdown.
-* EBS volume can be attached to a new EC2 instance, normally there is a 1 to 1 relation between volume and EC2 instance. Except for multi-attached EBS.
+* Existing EBS volume can be attached to a new EC2 instance, normally there is a 1 to 1 relation between volume and EC2 instance. Except for multi-attached EBS.
 * The maximum amount of storage is 16 TB.
 * Support encryption at rest and in transit using AES-256 encryption, with keys managed in KMS. Any snapshot taken from an encrypted volume will also be encrypted, and also any volume created from this encrypted snapshot will also be encrypted.
-* Creating EBS volume can be done as a standalone volume later attached to an instance. Below is an example of the type of paramters to enter:
+* Creating EBS volume can be done as a standalone volume later attached to an instance. Below is an example of the type of parameters to enter:
 
     ![](./images/storage/ebs-vol-creation.png)
 
-* Once logged to the EC2 instance, add a filesystem, mount to a folder and modify boot so the volume is mounted at start time. Which looks like:
+    Same with  `boto3` SDK:
+
+    ```python
+    volume = ec2.create_volume(
+        AvailabilityZone='us-west-2a',
+        Size=10,  # in GB
+        VolumeType='gp2',
+        MultiAttachEnabled=True,
+        Encrypted=False,
+        DryRun=True,
+        Iops=100, # IOPS provisioned for the volume, represents the rate at which the volume accumulates I/O credits for bursting
+    )
+    ```
+
+* Once logged to the EC2 instance, add a filesystem, mount to a folder and modify boot so the volume is mounted at start time. See below shell commands:
 
     ```shell
     # List existing block storage, verify our created storage is present
@@ -70,7 +88,10 @@ Elastic Block Store Volume is a network drive attached to the EC2 instance. It i
 * For cross-region replication we need to use [Data Lifecycle Manager](#data-lifecyle-manager).
 * Backup is done by using snapshot, and we can rebuild a volume from a snapshot, in case of AZ failure.
 * EC2 instance has a logical volume that can be attached to two or more EBS RAID 0 volumes, where write operations are distributed among them. It is used to increase IOPS without any fault tolerance. If one fails, we lost data. It could be used for database with built-in replication mechanism or for Kafka node.
-* RAID 1 is for better fault tolerance: a write operation is going to all attached volumes.
+* RAID 1 is for better fault tolerance: a write operation is going to all attached volumes. RAID 1 is also not recommended for use with EBS.
+
+!!!- info "RAID"
+    Creating a [RAID 0](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/raid-config.html) array allows to achieve a higher level of performance for a file system than on a single EBS volume. I/O is distributed across the volumes in a stripe. If we add a volume, we get the straight addition of throughput and IOPS. Loss of a single volume in the set results in a complete data loss for the array. The resulting size is the sum of the sizes of the volumes within it, and the bandwidth is the sum of the available bandwidth of the volumes within it.
 
 ### [Volume types](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-volume-types.html)
 
@@ -78,17 +99,18 @@ There are two type of volumes: SSD or HDD. SSD is to work with smaller blocks (l
 
 When creating EC2 instances, we can only use the following EBS volume types as boot volumes: gp2, gp3, io1, io2, and Magnetic (Standard)
 
-* **gp2 or gp3**: SSD, used for most workload up to 16 TB at 16000 IOPS max  (3 IOPS per GB brustable to 3000).
+* **gp2 or gp3**: SSD, used for most workloads, it goes up to 16 TB at 16000 IOPS max  (3 IOPS per GB brustable up to 3000 IOPS).
 * **io 1** or **io 2**: critical app with large database workloads. max ratio 50:1 IOPS/GB. Min 100 iops and 4G to 16T. 99.9% durability and even 99.999% for io2.
 EBS Provisioned IOPS SSD (io2 Block Express) is the highest-performance SSD volume designed for business-critical latency-sensitive transactional workloads.
 * **st 1**: HDD. Streaming workloads requiring consistent, fast throughput at a low price. For Big data, Data warehouses, Log processing. Up to 16 TiB. 99.9% durability.
 * **sc 1**: throughput oriented storage.  500G- 16T, 500MiB/s. Max IOPs at 250. Used for cold HDD, and infrequently accessed data. 99.9% durability.
 
 Encryption has a minimum impact on latency. It encrypts data at rest and during snapshots.
+
 * Provisioned IOPS (PIOPS) SSD: used for critical apps with sustained IOPS performance, even more than 16k IOPS.
 
 
-??? - "Example of use cases"
+??? - "Use case examples"
     * App requires up to 400 GB of storage for temporary data that is discarded after usage. The application requires approximately 40,000 random IOPS to perform the work on file. => Prefer a SSD-Backed Storage Optimized (i2) EC2 instances to get more than 365,000 random IOPS. The instance store has no additional cost, compared with the regular hourly cost of the instance. Provisioned IOPS SSD (io1 or io2) EBS volumes can deliver more than the 40,000 IOPS that are required in the scenario. However, this solution is not as cost-effective as an instance store because Amazon EBS adds cost to the hourly instance rate. This solution provides persistence of data beyond the lifecycle of the instance, but persistence is not required in this use case.
     * A database must provide at least 40 GiB of storage capacity and 1,000 IOPS. The most effective storage is gp2 with 334 GB storage: Baseline I/O performance for General Purpose SSD storage is 3 IOPS for each GiB. For 334 GiB of storage, the baseline performance would be 1,002 IOPS. Additionally, General Purpose SSD storage is more cost-effective than Provisioned IOPS storage.
 
