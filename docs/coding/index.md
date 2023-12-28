@@ -55,32 +55,14 @@ aws iam list-users
 
 ## [LocalStack](https://docs.localstack.cloud/overview/)
 
-This is a container to get started with developing and testing AWS cloud & serverless applications locally with LocalStack. It uses:
+LocalStack is a container to get started with developing and testing AWS cloud & serverless applications locally. It uses:
 
 * A docker container to support the AWS services API (it supports even CloudFormation)
-* A CLI to work on the container
 * an `awslocal` CLI to do the same actions as `aws` CLI but to the localstack.
 
-There are a lot of tutorials available [from the web site](https://docs.localstack.cloud/tutorials/) see also [this example for secret access](https://github.com/jbcodeforce/aws-studies/tree/main/labs/security/secrets-game) from Quarkus app and [this docker compose file](https://github.com/jbcodeforce/aws-studies/blob/main/labs/security/secrets-game/app/docker-compose.yaml) to start the local stack.
+There are a lot of tutorials available [from this web site](https://docs.localstack.cloud/tutorials/) see also [my example for secret access](https://github.com/jbcodeforce/yarfba/tree/main/labs/security/secrets-game) from Quarkus app and [this docker compose file](https://github.com/jbcodeforce/yarfba/blob/main/labs/security/secrets-game/app/docker-compose.yaml) to start the local stack.
 
-Quarkus dev mode is using it as soon as the AWS SDK library is added to the `pom.xml`.
-
-## Programming samples
-
-### Access S3
-
-```python
-import boto3,os
-# declare a client to the service you want
-AWS_ACCESS_KEY_ID=os.environ.get("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY=os.environ.get("AWS_SECRET_ACCESS_KEY")
-AWS_SESSION_TOKEN=os.environ.get("AWS_SESSION_TOKEN")
-s3 = goto3.service("s3")
-# use SDK API for s3.
-s3.buckets.all()
-```
-
-See example in [python-code repository](https://github.com/jbcodeforce/python-code/tree/master/aws) or in this [AWS service remote access demo](https://github.com/jbcodeforce/aws-remote-svc-acccess-from-k8s)
+Quarkus dev mode is using LocalStack as soon as the AWS SDK library is added to the `pom.xml`.
 
 
 ## [DevOps](https://aws.amazon.com/devops/)

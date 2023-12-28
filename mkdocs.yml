@@ -1,5 +1,5 @@
 site_name: AWS Studies
-repo_url: https://github.com/jbcodeforce/aws-studies.git
+repo_url: https://github.com/jbcodeforce/yarfba.git
 site_author: Jerome Boyer
 nav:
   - Introduction: index.md
@@ -11,7 +11,6 @@ nav:
       - Route 53: infra/route53.md
       - Monitoring: monitoring/monitoring.md
       - Cost mgt: monitoring/cost.md
-      - Messaging: infra/messaging.md
       - Kinesis*: kinesis/index.md
      
   - Architecture:
@@ -21,6 +20,7 @@ nav:
       - SaaS: sa/saas.md
       - Resiliency: sa/resiliency.md
       - Conduct Design session: templ/index.md
+
   - Analytics: analytics/index.md
   - Data:
       - Introduction: data/index.md
@@ -38,6 +38,7 @@ nav:
       - API Gateway: serverless/apigtw.md
       - ECS: serverless/ecs.md
       - EKS: serverless/eks.md
+      - Messaging: https://jbcodeforce.github.io/aws-messaging-study
       - MSK: serverless/msk.md
       - Streaming: kinesis/index.md
       - EventBridge: serverless/eventbridge.md
