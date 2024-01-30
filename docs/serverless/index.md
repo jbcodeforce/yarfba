@@ -1,15 +1,15 @@
 # Serverless
 
 !!! Info
-    Updated 9/14/2023
+    Created 04/2023 - Updated 1/19/2024
 
-Serverless helps organization to get to the market quickly, removes undifferentiated heavy lifting work and allows dev teams to move as quickly as possible. 
+Serverless helps organization to get to the market quickly, removing heavy lifting work like servers management. Serverless should not be lambda / function programming. 
 
-## Characteristics of serverless computing:
+## Characteristics of serverless computing
 
 * No server infrastructure to provision or to manage.
-* **Flexible scaling**: scale automatically in response to the load, and capacity defined in term of unit of work.
-* Automated HA and fault tolerance. 
+* **Flexible scaling**: scale automatically in response to the load, and capacity defined in term of unit of work. Scale to zero too.
+* Automated HA and fault tolerance.
 * No idle capacity. Only charged for the total invocations of our function, and the amount of time that our function is actually running. 
 
 Serverless on AWS is supported by a lot of services:
@@ -34,10 +34,10 @@ Serverless on AWS is supported by a lot of services:
         * Must implement authorization in the backend
 
 * Amazon S3
-* AWS SNS & SQS: for asynchronous communication between components.
+* Amazon SNS & SQS: for asynchronous communication between components.
 * AWS Kinesis Data Firehose
 * Aurora Serverless
-* Step Functions
+* AWS Step Functions
 * Fargate and ECS
 * Managed Service for Apache Kafka: MSK.
 * Kinesis Data Stream
@@ -142,7 +142,7 @@ We may add annotations to segments in order to group traces to help us identify 
 
 ## Serverless architecture patterns
 
-### Few write / Lot of reads app (ToDo)
+### Few write / Lot of reads app (To Do)
 
 The mobile application access application via REST HTTPS through API gateway. This use serverless and users should be able to directly interact with s3 buckets.  They first get JWT token to authenticate and the API gateway validates such token. The Gateway delegates to a Lambda function which goes to Dynamo DB.
 
@@ -187,22 +187,22 @@ IoT Core allows to collect data from IoT devices. Kinesis is used to get data as
 
 ## Designing for Serverless
 
-Some of the Design patterns to consider while migrating to serverless:
+Some of the common design patterns to consider when migrating to serverless:
 
 * **Leapfrog**: bypass interim steps and go straight from an on-premises legacy architecture to a serverless cloud architecture.
 * **Organic**: lift and shift. Experiment with Lambda in low-risk internal scenarios such as log processing or cron jobs.
 * **Strangler**: incrementally and systematically decomposes monolithic applications by creating APIs and building event-driven components that gradually replace components of the legacy application. New feature branches can be serverless first, and legacy components can be decommissioned as they are replaced.
 
-### Good questions to assess:
+### Good questions to assess
 
-| Question | Answer |
+| Question | Comment |
 | --- | --- |
-| What does this application do and how are its components organized? | |
-| How can you break your data needs up based on the command query responsibility segregation (CQRS) pattern?  | |
-| How does the application scale and what components drive the capacity you need?  | |
-| Do you have schedule-based tasks?  | |
-| Do you have workers listening to a queue?  | |
-| Where can you refactor or enhance functionality without impacting the current implementation? | |
+| What does the application do and how are its components organized? | Establish a bounded context for each microservice. Assess entity and data store. |
+| How can you break your data needs based on the command query responsibility segregation (CQRS) pattern?  | Strangle data by needs. Decouple write transaction from queries at scale.  |
+| How does the application scale and what components drive the capacity you need?  | Look at independent scaling, and high scaling demand. |
+| Do you have schedule-based tasks?  | cron jobs are good targets to replace with Lambda functions |
+| Do you have workers listening to a queue?  | Decoupling may already being adopted, EDA discussions may be started. |
+| Where can you refactor or enhance functionality without impacting the current implementation? | Look at API needs, ALB needs. |
 
 See [Serverless app Lens in AWS Well Architected.](https://docs.aws.amazon.com/wellarchitected/latest/serverless-applications-lens/welcome.html)
 

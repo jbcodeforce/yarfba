@@ -1,14 +1,18 @@
-# [API Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/welcome.html)
+# [Amazon API Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/welcome.html)
 
+
+!!! Info
+    Created 11/2023 - Updated 01/29/2024
+    
 ## Introduction
 
-Fully managed service to define, deploy, and monitor APIs within a AWS region: HTTP, REST, or WebSocket. It forms the app-facing part of AWS Serverless. As illustrated in the diagram below, it also covers other API endpoints for different backends, even on-premises backends.
+Fully managed service to define, deploy, and monitor APIs within a AWS region. It supports HTTP, REST, or WebSocket APIs. As illustrated in the diagram below, it also covers other API endpoints for different backends, even on-premises backends.
 
 ![](./diagrams/apigtw-arch.drawio.png){ width=800 }
 
 **Figure 1: API Gateway to serve multiple end points**
 
-It supports hundred of thousands of concurrent API calls. It can even cache backend response (at the stage level) to reduce calls to backend, to improve request latency. Only GET methods are cached.
+It supports hundred of thousands of concurrent API calls. It can even cache backend response (at the stage level) to reduce calls to backend to improve request latency. Only GET methods are cached.
 
 APIs are deployed to "Stages" (dev, prod...). Stage can be rolled back as there is an history of each deployment.
 
@@ -22,20 +26,15 @@ For data transformation, mapping templates ([Velocity Template Language](https:/
 
 We can define a [custom domain name](https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-custom-domains.html) to get our own URL endpoint and use base path (`/myservice`) mapping to go to the different URLs/APIs served by the domain. We can use API Gateway Version 2 to create and manage Regional custom domain names for REST APIs. The domain name needs to be registered to an internet domain registrar like Route 53.
 
-## Hands-on
 
-* [API Gateway console]( https://console.aws.amazon.com/apigateway).
-* [Basic API to front end Lambda](https://docs.aws.amazon.com/apigateway/latest/developerguide/getting-started.html).
-* [API Gateway tutorials](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-tutorials.html)
-* [A lot of serverlessland examples use APIGTW](https://serverlessland.com).
 
 ## Designing considerations
 
-Amazon API Gateway will automatically scale to handle the amount of traffic the API receives.It has a max timeout set to 29 seconds, and a max payload to 10MB per request. To protect against traffic spikes define throttling and caching settings.
+Amazon API Gateway will automatically scale to handle the amount of traffic the API receives. It has a max timeout set to 29 seconds, and a max payload to 10MB per request. To protect against traffic spikes define throttling and caching settings.
 
-With API Gateway, we can set throttle and quota limits on our REST API consumers. This can be useful for things such as preventing one consumer from using all of the backend system’s capacity or to ensure that the downstream systems can manage the number of requests we send through. The Throttle can be set per client and methods, and has a quota per account.
+With API Gateway, we can set throttle and quota limits on our REST API consumers. This can be useful for things such as preventing one consumer from using all of the backend system’s capacity or to ensure that the downstream systems can manage the number of requests sent through. The Throttle can be set per client and method, and has a quota per AWS account.
 
-API Gateway throttles requests (Clients may receive HTTP 429 Too Many Requests) to our API using the token bucket algorithm, where a token counts for a request. Specifically, API Gateway examines the rate and a burst of request submissions against all APIs in our account, **per Region**.
+API Gateway throttles requests (Clients may receive HTTP 429 Too Many Requests) to the API using the token bucket algorithm, where token counts requests. Specifically, API Gateway examines the rate and a burst of request submissions against all APIs in AWS account, **per Region**.
 
 To identify client we need to use API keys and set the throttle rules per key.
 
@@ -55,13 +54,19 @@ We can turn on API caching in API Gateway to cache the endpoint's responses, wit
 
 Client can invalidate cache by using a HTTP header Cache-Control: max-age=0. It needs proper IAM permission.
 
+We can get client code generated from the REST api definition.
+
+### HTTP API
+
+HTTP APIs are optimized for building APIs that proxy to Lambda functions or HTTP backends, making them ideal for serverless workloads. But they do not currently support API management functionality
+
 ### Open API standard
 
-It is possible to upload an OpenAPI definition on an existing API defined in a Gateway.
+It is possible to upload an OpenAPI definition of an existing API in a API Gateway.
 
 ### WebSocket API
 
-With a WebSocket API, the client and server can send messages to each other at any time. The API Gateway manages the persistence and state needed to connect it to the clients. When a client sends a message over its WebSocket connection, this results in a route request to the WebSocket API. The request will be matched to the route with the corresponding route key in API Gateway. 
+With a WebSocket API, the client and server can send messages to each other at any time. The API Gateway manages the persistence and state needed to connect it to the client. When a client sends a message over its WebSocket connection, this results in a route request to the WebSocket API. The request will be matched to the route with the corresponding route key in API Gateway. 
 
 The client apps connect to your WebSocket API by sending a WebSocket upgrade request. If the request succeeds, the $connect route is invoked while the connection is being established. Until the invocation of the integration you associated with the $connect route is completed, the upgrade request is pending and the actual connection will not be established. If the $connect request fails, the connection will not be made.
 
@@ -73,7 +78,7 @@ After the connection is established, your client's JSON messages can be routed t
 
 ### API access
 
-When it comes to granting access to your APIs, you need to think about two types of permissions:
+When it comes to granting access to our APIs, we need to think about two types of permissions:
 
 1. Who can **invoke** the API: To call a deployed API, or refresh the API caching, the caller needs the execute-api permission.  Create IAM policies that permit a specified API caller to invoke the desired API method.
 1. Who can **manage** the API: To create, deploy, and manage an API in API Gateway, the API developer needs the apigateway permission.
@@ -102,14 +107,15 @@ It is possible to define an API to upload doc to S3, but there is a risk that th
 
 ## Pricing
 
+* Pay when APIs are in use at a set cost per million requests. Data Transfer out of AWS cost occurs.
 * HTTP APIs are designed with minimal features so that they can be offered at a lower price. 
 * WebSocket APIs maintain persistent connections with clients for full-duplex communication. WebSocket APIs for API Gateway charge for the messages you send and receive. Also charged for the total number of connection minutes. the `$connect` route is to initiate the connection, `$disconnect` route.. and `$default` route when route selection cannot be assessed. 
-* Caching is billed.
+* Caching is billed  by the hour.
 * API can be sell as SaaS on Marketplace.
 
 ## Monitoring
 
-* Two level of execution logs, Error and Info.
+* Two level of execution logs, Error and Info. [Turn CloudWatch logs for troubleshooting the API gtw.](https://repost.aws/knowledge-center/api-gateway-cloudwatch-logs)
 * For REST APIs consider looking at the `CacheHitCount` and `CacheMissCount` metrics. Other metrics are Calls count, Latency, 4XX, 5XX, Integration latency
 * For HTTP metrics are calls count, Latency, 4XX, 5XX, Integration latency, data processed
 * For WebSocket, connect count, message count, integration error, client error, execution error, integration latency.
@@ -132,6 +138,20 @@ The lambda can:
 * Retrieving credentials from a database
 
 [Here is a boilerplate for decode JWT](https://github.com/awslabs/aws-support-tools/tree/master/Cognito/decode-verify-jwt)
+
+## Hands-on
+
+### Tutorials
+
+* [Basic API to front end a Lambda function](https://docs.aws.amazon.com/apigateway/latest/developerguide/getting-started.html).
+* [API Gateway tutorials](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-tutorials.html)
+* [A lot of serverlessland examples use APIGTW](https://serverlessland.com/search?search=api+gateway).
+* [Serverless examples in this repo.](https://github.com/jbcodeforce/yarfba/tree/main/labs/serverless)
+* [Load an OpenAPI definition in API Gateway.](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-api-from-example.html)
+
+### An end-to-end Quarkus based solution
+
+See the CarRideManager microservice which exposes a Quarkus app running on ECS Fargate with Open API deployed on Amazon API gateway.
 
 ## Deeper dive
 

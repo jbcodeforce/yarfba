@@ -1,5 +1,10 @@
 # [Lambda](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html)
 
+This document is a quick summary of the Lambda technology, links to interesting content, labs, and sharing some best practices.
+
+!!! Info
+    Created 11/2023 - Updated 01/29/2024
+
 ## Introduction
 
 With AWS Lambda, we can run code without provisioning or managing servers or containers.
@@ -12,7 +17,7 @@ A  Lambda function has three primary components – trigger, code, and configura
 
 ![](./images/lambda-fct-0.png){ width=800 }
 
-* **Triggers** describe when a Lambda function should run. A trigger integrates the Lambda function with other AWS services, enabling us to run our Lambda function in response to certain API calls that occur in our AWS account.
+* **Triggers** describe when a Lambda function should run. A trigger integrates the Lambda function with other AWS services, enabling to run the Lambda function in response to certain API calls that occur in the AWS account.
 * An **execution environment** manages the processes and resources that are required to run the function. 
 * Configuration includes compute resources, execution timeout, IAM roles (lambda_basic_execution)...
 * The execution environment follows the [life cycle](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtime-environment.html) as defined below (time goes from left to right):
@@ -23,13 +28,13 @@ A  Lambda function has three primary components – trigger, code, and configura
     * **Invoke phase** Lambda invokes the function handler. After the function runs to completion, Lambda prepares to handle another function invocation.
     * **Shutdown phase:** Lambda shuts down the runtime, alerts the extensions to let them stop cleanly, and then removes the environment.
 
-* The Lambda service is split into the control plane and the data plane. The control plane provides the management APIs (for example, `CreateFunction`, `UpdateFunctionCode`). The data plane is where Lambda's invoke API resides to invoke the Lambda functions. It is HA over multi AZs in same region.
-* Lambda Workers are bare metal Amazon EC2 AWS Nitro instances which are launched and managed by Lambda in a separate isolated AWS account which is not visible to customers. Each workers has one to many Firecraker microVMs. There is no container engine. Container image is just for packaging as zip does.
+* The Lambda service is split into the control plane and the data plane. The control plane provides the management APIs (for example, `CreateFunction`, `UpdateFunctionCode`). The data plane is where Lambda's API resides to invoke the Lambda functions. It is HA over multi AZs in same region.
+* Lambda Workers are bare metal Amazon EC2 Nitro instances which are launched and managed by Lambda in a separate isolated AWS account which is not visible to customers. Each workers has one to many [Firecraker microVMs](https://aws.amazon.com/blogs/aws/firecracker-lightweight-virtualization-for-serverless-computing/). There is no container engine. Container image is just for packaging the lambda code as zip does.
 
     ![](./diagrams/lambda-arch.drawio.png){width=1000}
 
-    * Synchronous calls for immediate response from the function, with errors returned to the caller. It may return throttles when we hit the concurrency limit.
-    * Asynchronous calls return acknowledgement. Event invocation mode payloads are always queued for processing before invocation. Internal SQS queue persists messages for up to 6 hours. Queued events are retrieved in batches by Lambda’s poller fleet. The poller fleet is a group of Amazon EC2 instances whose purpose is to process queued event invocations which have not yet been processed. When an event fails all processing attempts, it is discarded by Lambda. The dead letter queue (DLQ) feature allows sending unprocessed events from asynchronous invocations to an Amazon SQS queue or an Amazon SNS topic defined by the customer. Asynchronous processing should be more scalable.
+    * Synchronous calls is used for immediate function response, with potential errors returned to the caller. It may return throttles when we hit the concurrency limit.
+    * Asynchronous calls return acknowledgement. Event payloads are always queued for processing before invocation. Internal SQS queue persists messages for up to 6 hours. Queued events are retrieved in batches by Lambda’s poller fleet. The poller fleet is a group of Amazon EC2 instances whose purpose is to process queued event invocations which have not yet been processed. When an event fails all processing attempts, it is discarded by Lambda. The dead letter queue (DLQ) feature allows sending unprocessed events from asynchronous invocations to an Amazon SQS queue or an Amazon SNS topic defined by the customer. Asynchronous processing should be more scalable.
     * Event source mapping is used to pull messages from different streaming sources and then synchronously calls the Lambda function. It reads using batching and send all the events as argument to the function. If the function returns an error for any of the messages in a batch, Lambda retries the whole batch of messages until processing succeeds or the messages expire. It supports error handling. 
     * If the service is not available. Callers may queue the payload on client-side to retry. If the invoke service receives the payload, the service attempts to identify an available execution environment for the request and passes the payload to that execution environment to complete the invocation. It may lead to create this execution environment.
 
@@ -38,23 +43,26 @@ A  Lambda function has three primary components – trigger, code, and configura
 
 * Code: Java, Node.js, C#, Go, or Python. There is one runtime that matches the programming language.
 * Pay only for what we use: # of requests and CPU time, and the amount of memory allocated.
-* Lambda functions always operate from an AWS-owned VPC. By default, the function has the full ability to make network requests to any public internet addresses — this includes access to any of the public AWS APIs. Only enable our functions to run inside the context of a private subnet in our VPC, when we need to interact with a private resource located in a private subnet. In this case we need to enable internet outbound connection, like NAT, network policies, IGW.
-* When connecting a Lambda function to a VPC, Lambda creates an elastic network interface, ENI, for each combination of subnet and security group attached to the function. 
-* AWS Lambda automatically monitors Lambda functions and reports metrics through Amazon CloudWatch. To help us monitoring the code as it executes, Lambda automatically tracks the number of requests, the latency per request, and the number of requests resulting in an error and publishes the associated metrics.  We can leverage these metrics to set custom alarms.
-* To reuse code in more than one function, consider creating a Layer and deploying it there. A layer is a ZIP archive that contains libraries, a custom runtime, or other dependencies.
-* Lambda supports versioning and we can maintain one or more versions of our lambda function. We can reduce the risk of deploying a new version by configuring the alias to send most of the traffic to the existing version, and only a small percentage of traffic to the new version. Here is an example of creating one Alias to version 1 and routing config with Weight at 30% to version 2. Alias enables us to promote new lambda function versions to production and if we need to rollback a function, we can simply update the alias to point to the desired version. Event source needs to use Alias ARN for invoking the lambda function.
+* Lambda functions always operate from an AWS-owned VPC. By default, the function has the full ability to make network requests to any public internet addresses — this includes access to any of the public AWS APIs.
+* Only enable the functions to run inside the context of a private subnet in a VPC, when we need to interact with a private resource located in a private subnet. In this case we need to enable internet outbound connection, like NAT, network policies, IGW.
+* When connecting a Lambda function to a VPC, Lambda creates an elastic network interface, ENI, for each combination of subnet and security group attached to the function.
+* AWS Lambda automatically monitors Lambda functions and reports metrics through Amazon CloudWatch. To help monitoring the code as it executes, Lambda automatically tracks the number of requests, the latency per request, and the number of requests resulting in an error and publishes the associated metrics.  Developer can leverage these metrics to set custom alarms.
+* To reuse code in more than one function, consider creating a Layer and deploying it. A layer is a ZIP archive that contains libraries, a custom runtime, or other dependencies.
+* Lambda supports versioning and we can maintain one or more versions of the lambda function. We can reduce the risk of deploying a new version by configuring the alias to send most of the traffic to the existing version, and only a small percentage of traffic to the new version. Below  is an example of creating one Alias to version 1 and a routing config with Weight at 30% to version 2. Alias enables promoting new lambda function version to production and if we need to rollback a function, we can simply update the alias to point to the desired version. Event source needs to use Alias ARN for invoking the lambda function.
 
     ```sh
     aws lambda create-alias --name routing-alias --function-name my-function --function-version 1  --routing-config AdditionalVersionWeights={"2"=0.03}
     ```
     
-* Each lambda function has a unique ARN. 
+* Each lambda function has a unique ARN.
 * Deployment package is a zip or container image.
-* Lambda scales automatically in response to incoming requests. Concurrency is subject to quotas at the AWS Region level. It is possible to use **Reserved concurrency**, which splits the pool of available concurrency into subsets. A function with reserved concurrency only uses concurrency from its dedicated pool. This is helpful to avoid one lambda function to take all the concurrency quota and impact other functions in the same region.
-* For functions that take a long time to initialize, or that require extremely low latency for all invocations, **provisioned concurrency** enables to pre-initialize instances of the function and keep them running at all times. 
+* Lambda scales automatically in response to incoming requests. Concurrency is subject to quotas at the AWS Account/Region level. It is possible to use **Reserved concurrency**, which splits the pool of available concurrency into subsets. A function with reserved concurrency only uses concurrency from its dedicated pool. This is helpful to avoid one lambda function to take all the concurrency quota and impact other functions in the same region.
+* For functions that take a long time to initialize, or that require extremely low latency for all invocations, **provisioned concurrency** enables to pre-initialize instances of the function and keep them running at all times.
 * We can allocate up to 10 GB of memory to a Lambda function. Lambda allocates CPU and other resources linearly in proportion to the amount of memory configured.
 
-## Criteria to use lambda.
+## Criteria to use lambda
+
+### Technical constraints
 
 * Per region deployment.
 * Must run under 15 min.
@@ -62,6 +70,14 @@ A  Lambda function has three primary components – trigger, code, and configura
 * Maximum 100 concurrent calls.
 * Code in compressed zip should be under 50MB and 250MB uncompressed.
 * Disk capacity for /tmp is limited to 10GB.
+
+### Design constraints
+
+* When migrating existing application [review the different design patterns to consider](./index.md/#designing-for-serverless).
+* Think about co-existence with existing application and how API Gateway can be integrated to direct traffic to new components (Lambda functions) without disrupting existing systems. With [API Gateway](./apigtw.md) developer can export the SDK for the business APIs to make integration easier for other clients, and can use throttling and usage plans to control how different clients can use the API.
+* Do cost comparison analysis. For example API Gateway is pay by the requests, while ALB is priced by hours based on the load balance capacity units used per hour. Lambda is also per request based.
+* Not everything fits into the function design. Assess if it makes sense to map REST operations in the same handler.
+* Assess for Fargate usage when the application is in container, may run for a long period. Larger packaging may not be possible to run on Lambda. Applications that use non HTTP end point, integrate to messaging middleware with Java based APIs.
 
 ## Security
 
@@ -85,8 +101,8 @@ For AWS Lambda, AWS manages the underlying infrastructure and foundation service
 
     If it runs out of IP@ then we will have EC2 error types like `EC2ThrottledException` and the function will not scale. So be sure to have multiple AZ/ subnets and enough IP@.
 
-* For the function to access to the internet, route outbound traffic to a NAT gateway in a the public subnet in our VPC.
-* To establish a private connection between the VPC and Lambda, create an interface VPC endpoint (using AWS PrivateLink). Traffic between our VPC and Lambda does not leave the AWS network.
+* For the function to access to the internet, route outbound traffic to a NAT gateway in one public subnet in the VPC.
+* To establish a private connection between the VPC and Lambda, create an interface VPC endpoint (using AWS PrivateLink). Traffic between the VPC and Lambda does not leave the AWS network.
 
     ```sh
     aws ec2 create-vpc-endpoint --vpc-id vpc-ec43eb89 --vpc-endpoint-type Interface --service-name \

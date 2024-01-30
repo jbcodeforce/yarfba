@@ -1,6 +1,6 @@
 # Serverless Worshops
 
-This folder includes the code to  quickly demonstrating the  different serverless workshops.
+This folder includes the code to  quickly demonstrate the  different serverless workshops.
 
 ## Serverless patterns
 
@@ -19,6 +19,7 @@ Once the sam deploy is done (`sam build && sam deploy --guided --stack-name ws-s
     ```sh
     aws dynamodb get-item --table-name ws-serverless-patterns-Users --key '{"userid": {"S": "<userid-from-response>"}}' 
     ```
+    
 * Use Cognito login URL to register a user.    
 * Demonstrate users in Cognito using AWS Console or do the following
 

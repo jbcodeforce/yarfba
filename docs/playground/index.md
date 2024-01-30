@@ -51,6 +51,6 @@ Try to use AWS Cloud9 to do most of the labs, as it avoids creating internet end
 * [Car rides generator with python Lambda](https://github.com/jbcodeforce/CarRideGenerator)
 * [Repo to illustrate Getting GitHub events to API gtw, Lambda and Slack in Python](https://github.com/jbcodeforce/from-git-to-slack-serverless)
 
-## Active MQ and messagings
+## Active MQ and messaging
 
-* [Repo aws-messageing-study](https://github.com/jbcodeforce/aws-messaging-study)
+* [Repo aws-messaging-study](https://jbcodeforce.github.io/aws-messaging-study)

@@ -3,7 +3,14 @@
 !!! Updates
     Created 12/2022 - Updated 12/04/2023
 
-Designed to process real-time streaming data.
+## Streaming
+
+Designed to process real-time streaming data. Streaming means unbounded data sets and continuous arrival. 
+The streaming computation involves processing recent data, with less memory needs compare to big data processing, with low latency.
+
+Stream storage uses append-only log semantic. Messages are immutables and could not be deleted in the stream.
+
+## Kinesis basic
 
  ![kin](./diagrams/kinesis.drawio.svg)
 
@@ -13,7 +20,7 @@ Three main different components are:
 * **Amazon Managed Service for Apache Flink**: perform real-time analytics on streams using SQL. This Apache Flink as managed service.
 * **Kinesis Firehose**: load streams into S3, Redshift, ElasticSearch. No administration, auto scaling, serverless.
 
-## [Kinesis Data Streams](https://docs.aws.amazon.com/streams/latest/dev/introduction.html)
+### [Kinesis Data Streams](https://docs.aws.amazon.com/streams/latest/dev/introduction.html)
 
 It is a distributed data stream into Shards for parallel processing.
 
@@ -46,7 +53,7 @@ Captured Metrics are:
 * Write / read provisioned throughput exceeded,
 * iterator age ms.
 
-### Deployment
+#### Deployment
 
 Using CDK, see example in [cdk/kinesis](https://github.com/jbcodeforce/big-data-tenant-analytics/tree/main/cdk/kinesis), but can be summarized as:
 
@@ -68,7 +75,7 @@ Using CLI:
 aws kinesis create-stream --stream-name ExampleInputStream --shard-count 1 --region us-west-2 --profile adminuser
 ```
 
-### Producer
+#### Producer
 
 Producer applications are done using Kinesis Producer Library (KPL) and they can batch events, and perform retries. Internally KPL uses queue to bufferize messages.  Example of python code using boto3 and KPL:
 
@@ -103,7 +110,7 @@ Produce:
 aws kinesis put-record --stream-name test --partition-key user1 --data "user signup" --cli-binary-format raw-in-base64-out
 ```
 
-### Consumer
+#### Consumer
 
 #### AWS SDK
 
@@ -124,7 +131,7 @@ aws kinesis get-shard-iterator --stream-name test --shard-id shardId--00000000 -
 aws kinesis get-records --shard-iterator <the-iterator-id>
 ```
 
-## [Kinesis Data Firehose](https://docs.aws.amazon.com/firehose/latest/dev/what-is-this-service.html)
+### [Kinesis Data Firehose](https://docs.aws.amazon.com/firehose/latest/dev/what-is-this-service.html)
 
 Firehose is a fully managed service for delivering real-time streaming data to various supported destinations.
 
@@ -141,7 +148,7 @@ Firehose is a fully managed service for delivering real-time streaming data to v
 * Firehose uses S3 to backup all or failed only data that it attempts to deliver to the chosen destination.
 * Use an *interface VPC endpoint* to keep traffic between our VPC and Kinesis Data Firehose from leaving the Amazon network.
 
-## [Managed Service for Apache Flink](https://docs.aws.amazon.com/managed-flink/latest/java/what-is.html)
+### [Managed Service for Apache Flink](https://docs.aws.amazon.com/managed-flink/latest/java/what-is.html)
 
 This is a managed service to transform and analyze streaming data in real time using Apache Flink. It can consume records from different sources, and in this demonstration we use Kinesis Data Streams.
 
