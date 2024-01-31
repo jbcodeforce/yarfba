@@ -88,7 +88,7 @@ It is possible to use tool like [ecs-exec-checker](https://github.com/aws-contai
 
 ## Deploy a Python Flask app with CDK ecs_patterns
 
-See the [folder: labs/cdk/ecs-fargate](https://github.com/jbcodeforce/aws-studies/tree/main/labs/cdk/ecs-fargate-flask) with a ECS cluster in the Default VPC, a Python flask application build and pushed to ECR in private repository. Below is the extract from the stack definition:
+See the [folder: labs/cdk/ecs-fargate](https://github.com/jbcodeforce/yarfba/tree/main/labs/cdk/ecs-fargate-flask) with a ECS cluster in the Default VPC, a Python flask application build and pushed to ECR in private repository. Below is the extract from the stack definition:
 
 ```python
     vpc = ec2.Vpc.from_lookup(self, "lookup", is_default=True)     # default is all AZs in region

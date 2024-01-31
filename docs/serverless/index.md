@@ -363,8 +363,8 @@ For IAM security, the same policies can be set as we do for EC2. We still need t
 ### Examples
 
 * [ECS nginx demo in ECS playground](../playground/ecs.md/#deploy-nginx-docker-image-on-fargate)
-* [Deploy Flask App from private ECR repository with AWS Console](../playground/ecs.md)
-* [Deploy Flask App with CDK](../playground/ecs.md/#deploy-a-python-flask-app-with-cdk)
+* [Deploy Flask App from private ECR repository with AWS Console](../playground/ecs.md/#deploy-a-python-flask-app-using-aws-console-on-ecs-fargate)
+* [Deploy Flask App with CDK](../playground/ecs.md/#deploy-a-python-flask-app-with-cdk-ecs_patterns)
 
 ## [Step Function](./stepfct.md)
 
@@ -395,22 +395,22 @@ https://hooks.slack.com/services/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
 * [Implementing Safe Lambda Deployments with CodeDeploy](https://aws.amazon.com/blogs/compute/implementing-safe-aws-lambda-deployments-with-aws-codedeploy/)
 * [API patterns Restful vs GraphQL APIs - George Mao 2020.](https://www.youtube.com/watch?v=pBFStsa0h-4)
 
-## Worshops
+## Workshops
 
 * [x] [Serverless patterns - immersion days](https://catalog.us-east-1.prod.workshops.aws/workshops/76bc5278-3f38-46e8-b306-f0bfda551f5a/en-US) done in cloud 9 Development machine and serverless-immersion-day folder. 
 
     * [x] Module 1: API Gateway - Lambda - DynamoDB
-    * [x] Module 2: Cognito, Lambda authorizer, API Gateway, Lambda (CRUD), DynamoDB + SAM. Sam template in [labs/serverless/ws-serverless-patterns folder](https://github.com/jbcodeforce/aws-studies/tree/main/labs/serverless/ws-serverless-patterns)
+    * [x] Module 2: Cognito, Lambda authorizer, API Gateway, Lambda (CRUD), DynamoDB + SAM. Sam template in [labs/serverless/ws-serverless-patterns folder](https://github.com/jbcodeforce/yarfba/tree/main/labs/serverless/ws-serverless-patterns)
     * [x] Module 3: CI/CD
     * Assessment: 5 :octicons-star-fill-24:{ .star } but too much of mixing lambda = serverless. 
 
 * [ ] [Build, Secure, Manage Serverless Applications at Scale on AWS](https://catalog.us-east-1.prod.workshops.aws/workshops/b34eab03-4ebe-46c1-bc63-cd2d975d8ad4/en-US)
 * [x] [Decoupled microservice workshop](https://catalog.us-east-1.prod.workshops.aws/workshops/e8738cf6-6eb0-4d1d-9e98-ae240d229535/en-US/choose-your-own-advanture)
 
-    * [x] Lab 1 - Fan-out & message filtering: use SNS to get multiple services (lambda fcts) to subscribe to the topic, API Gtw exposes API to a Lambda which persist data in DynamoDB and send to SNS. The function is not idempotent, and not transactional. See [labs/serverless/asynchronous-messaging/fanout-sns](https://github.com/jbcodeforce/aws-studies/tree/main/labs/serverless/asynchronous-messaging/fanout-sns)
-    * [x] Lab 2 - Topic-queue chaining & load balancing: in previous example, it is possible subscriber service may miss topic messages. See [labs/serverless/asynchronous-messaging/topic-queue-chaining](https://github.com/jbcodeforce/aws-studies/tree/main/labs/serverless/asynchronous-messaging/topic-queue-chaining)
-    * [x] Lab 3 - scatter pattern by sending messages through multiple channels. The application comprises of API Gateway endpoints and lambda functions which provide the ability to send requests for quote and to query the responses. Service providers have subscribed to a SNS topic which is used to publish the request for quote (RFQ). On receiving the RFQ message, service providers send their response for quotes in a queue. The queue triggers a lambda function which loads the responses in a DynamoDB table. The response for quotes service queries all the responses based on request id. See [labs/serverless/asynchronous-messaging/scatter-gather](https://github.com/jbcodeforce/aws-studies/tree/main/labs/serverless/asynchronous-messaging/scatter-gather)
-    * [x] Lab 4 - Orchestration and coordination: to demonstrate how to support long lived transaction across distributed components using Step function to ensure data consistency across microservices. See [labs/serverless/asynchronous-messaging/orchestration](https://github.com/jbcodeforce/aws-studies/tree/main/labs/serverless/asynchronous-messaging/orchestration)
+    * [x] Lab 1 - Fan-out & message filtering: use SNS to get multiple services (lambda fcts) to subscribe to the topic, API Gtw exposes API to a Lambda which persist data in DynamoDB and send to SNS. The function is not idempotent, and not transactional. See [labs/serverless/asynchronous-messaging/fanout-sns](https://github.com/jbcodeforce/yarfba/tree/main/labs/serverless/asynchronous-messaging/fanout-sns)
+    * [x] Lab 2 - Topic-queue chaining & load balancing: in previous example, it is possible subscriber service may miss topic messages. See [labs/serverless/asynchronous-messaging/topic-queue-chaining](https://github.com/jbcodeforce/yarfba/tree/main/labs/serverless/asynchronous-messaging/topic-queue-chaining)
+    * [x] Lab 3 - scatter pattern by sending messages through multiple channels. The application comprises of API Gateway endpoints and lambda functions which provide the ability to send requests for quote and to query the responses. Service providers have subscribed to a SNS topic which is used to publish the request for quote (RFQ). On receiving the RFQ message, service providers send their response for quotes in a queue. The queue triggers a lambda function which loads the responses in a DynamoDB table. The response for quotes service queries all the responses based on request id. See [labs/serverless/asynchronous-messaging/scatter-gather](https://github.com/jbcodeforce/yarfba/tree/main/labs/serverless/asynchronous-messaging/scatter-gather)
+    * [x] Lab 4 - Orchestration and coordination: to demonstrate how to support long lived transaction across distributed components using Step function to ensure data consistency across microservices. See [labs/serverless/asynchronous-messaging/orchestration](https://github.com/jbcodeforce/yarfba/tree/main/labs/serverless/asynchronous-messaging/orchestration)
 
 * [ ] [Serverless security workshop](https://catalog.us-east-1.prod.workshops.aws/workshops/026f84fd-f589-4a59-a4d1-81dc543fcd30/en-US)
 * [ ] [Serverless Observability Workshop](https://catalog.us-east-1.prod.workshops.aws/workshops/b3fc5f7a-ff34-41fa-a9f2-4cd9e093e6ff/en-US)

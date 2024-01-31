@@ -1,9 +1,57 @@
 # Analytics Services
 
+Analytics helps companies decide where and when to launch new products, when to offer discounts, and when to market in new areas.
+
+Data analysis is the process of interpreting data that leads to meaningful decisions. Data analysis is a small part of data analytics.  Data analytics uses raw data captured from many sources to process, analyze, and interpret what may happen and how an organization can use this knowledge for its benefit. 
+
+There are four types of analytics:
+
+* **Descriptive analytics** helps answering "What happened?". It provides insights into trends and patterns. It uses data visualization.
+* **Diagnostic analytics** is characterized by techniques, such as drill-down, data discovery, data mining, and correlations.
+* **Predictive analytics** answers the question of "What might happen?". It uses historical data and statistical algorithms to make forecasts about future outcomes. It includes machine learning, forecasting, pattern matching, and predictive modeling.
+* **Prescriptive analytics** is based on predictive analytics, to actually recommend actions or responses to the predicted outcome. It includes machine learning, graph analysis, simulation, complex event processing, neural networks, and recommendation engines.
+
 The AWS portfolio of fully managed analytics services includes a cloud-native big data platform, a log analytics and search engine for operational data and a distributed streaming platform for real-time data movement.
 
-!!! Update
-    06/05/2023
+???- Info "Document history"
+    Created Nov 23 - Updated 01/30/2024
+
+## Domain Knowledge
+
+Each enterprise has data management platform challenges to be able to increase volumes, velocity and variety of data.
+
+Data an analytics domain of knowledge addresses the following subjects.
+
+### Data Collection 
+
+Data collection is gathering data from multiple sources to a single store.
+
+* Evaluate costs associated with data acquisition, transfer, and provisioning from various sources into the collection system.
+* Determine data persistence at various points of data capture.
+* Identify the latency characteristics of the collection system.
+* Select the data collection solution
+
+### Storage and data management
+
+Structured and semi-structured data are stored in database, while unstructured data are in data lakes. Transactional databases are called OLTP (online transaction processing) databases. In an OLTP system, the most common queries are called lookup queries. OLAP (online analytical processing) is associated more with aggregate queries that only need a few columns.
+
+* Determine data access and retrieval patterns.
+* Select appropriate data layout, schema, structure, and format.
+* Define data life cycles based on usage patterns and business requirements.
+
+### Data processing
+
+Data transformation is the formatting, organizing, and controlling of data.
+
+* Design a solution to transform and prepare data for analysis, applying appropriate ETL or ELT techniques. With ELT, all data cleansing, transformation, and enrichment occur within the data warehouse.
+* Implement failover, scaling, and replication mechanisms.
+
+### Analysis and Visualization
+
+
+### Data security
+
+* Apply data governance and compliance controls.
 
 ## AWS Athena
 
@@ -54,7 +102,7 @@ The AWS portfolio of fully managed analytics services includes a cloud-native bi
 
 It is possible to run Athena query from Lambda function and get the result pushed in an output S3 bucket or in another place.
 
-See the lambda code in the [labs/lambdas/s3-aurora folder](https://github.com/jbcodeforce/aws-studies/tree/main/labs/lambdas/s3-aurora).
+See the lambda code in the [labs/lambdas/s3-aurora folder](https://github.com/jbcodeforce/yarkba/tree/main/labs/lambdas/s3-aurora).
 
 Also see the [boto3 Athena API.](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/athena.html)
 
@@ -119,7 +167,7 @@ AWS Lake Formation integrates with Amazon EMR to set up, secure, and manage data
 See the [getting started tutorial](https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-gs.html) with Spark, Pyspark scripts stored in S3 (details below). 
 
 ???- info "Tutorial"
-    The Python code and data sets are in the folder: [labs/analytics/emr-starting](https://github.com/jbcodeforce/aws-studies/tree/main/labs/analytics/emr-starting). The goal is to process food establishment inspection data.
+    The Python code and data sets are in the folder: [labs/analytics/emr-starting](https://github.com/jbcodeforce/yarkba/tree/main/labs/analytics/emr-starting). The goal is to process food establishment inspection data.
 
     * Create a cluster using the script `create-cluster.sh` (it uses `aws emr create-cluster` command).
     * Unzip data sources in a S3 bucket (e.g. `s3://jb-data-set/restaurants/`)
@@ -157,7 +205,7 @@ No need to right-size clusters for varying jobs and data sizes. It automatically
 
 * We can submit jobs using workflow orchestration services like AWS Step Functions, Apache Airflow, or AWS Managed Workflows for Apache Airflow.
 * Logging: By default, EMR Serverless stores application logs securely in Amazon EMR managed storage for a maximum of 30 days. Before our jobs can send log data to Amazon S3, we must allow `s3:PutObject` on the `arn:aws:s3:::.../*` s3 bucket, in the permissions policy for the job runtime role. 
-* Monitoring with CloudWatch custom dashboard: See the CloudFormation definition under [lab/analytics/emr-serverless folder](https://github.com/jbcodeforce/aws-studies/tree/main/labs/analytics/emr-serverless) and using the command `./defineCWdashboard.sh`, we can get a dashboard for the Serverless EMR application:
+* Monitoring with CloudWatch custom dashboard: See the CloudFormation definition under [lab/analytics/emr-serverless folder](https://github.com/jbcodeforce/yarkba/tree/main/labs/analytics/emr-serverless) and using the command `./defineCWdashboard.sh`, we can get a dashboard for the Serverless EMR application:
 
     ![](./images/emr-serverless-cw-dashboard.png)
 
@@ -199,7 +247,7 @@ Source is the [tutorial - getting started](https://docs.aws.amazon.com/emr/lates
     * Log should be in logs folder.
     * Delete output from s3 bucket: `aws s3 rm s3://jb-data-set/emr-serverless-spark/ --recursive`
 
-    * **WordCount.py app with CLI:** Scripts are under [labs/analytics/emr-serverless](https://github.com/jbcodeforce/aws-studies/tree/main/labs/analytics/emr-serverless)
+    * **WordCount.py app with CLI:** Scripts are under [labs/analytics/emr-serverless](https://github.com/jbcodeforce/yarkba/tree/main/labs/analytics/emr-serverless)
 
     * If the application was not created before like in manual step above, use the following command: (which is in the script `createApplication.sh`) 
 

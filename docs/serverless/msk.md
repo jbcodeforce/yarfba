@@ -144,7 +144,7 @@ Topic: carrides	TopicId:04xSQmeTNpZR2FG4RA	PartitionCount: 1	ReplicationFactor: 
 
 ### CDK MSK
 
-The higher CDK abstraction level  is in alpha version, but a direct CloudFormation mapping is available. MSK Connect is not supported. See an example of serverless cluster in [labs/cdk/msk folder](https://github.com/jbcodeforce/aws-studies/tree/main/labs/cdk/msk) deployed in a public subnet with iam-role and policy.
+The higher CDK abstraction level  is in alpha version, but a direct CloudFormation mapping is available. MSK Connect is not supported. See an example of serverless cluster in [labs/cdk/msk folder](https://github.com/jbcodeforce/yarfba/tree/main/labs/cdk/msk) deployed in a public subnet with iam-role and policy.
 
 Typical MSK cluster creation in [cdk API](https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_msk_alpha/Cluster.html). The cluster deployed in a private subnet of a custom VPC, needs outbound rule and inbound rule on the exposed port number (9094?) (See [this code]()):
 

@@ -1,6 +1,6 @@
 # Solution design fun with AWS services
 
-This section presents examples of solution designw using AWS services, with links to external demonstrations when available.
+This section presents examples of solution design using AWS services, with links to external demonstrations when available.
 
 ## Migration
 

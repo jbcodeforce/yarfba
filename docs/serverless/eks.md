@@ -356,7 +356,7 @@ npm i @aws-quickstart/eks-blueprints
         aws://$ACCOUNT_ID/$AWS_REGION aws://$ACCOUNT_ID/us-east-2 aws://$ACCOUNT_ID/us-east-1
     ```
 
-[See the code in labs/cdk/eks-single](https://github.com/jbcodeforce/aws-studies/tree/main/labs/cdk/eks-single)
+[See the code in labs/cdk/eks-single](https://github.com/jbcodeforce/yarfba/tree/main/labs/cdk/eks-single)
 
 * Create a Cluster using the eks-blueprints package, which is published as a npm module.
 

@@ -2,7 +2,7 @@
 
 ## VPC hands-on work
 
-The CDK example in [the ec2-vpc folder](https://github.com/jbcodeforce/aws-studies/tree/main/labs/cdk/ec2-vpc) supports the following definitions:
+The CDK example in [the ec2-vpc folder](https://github.com/jbcodeforce/yarkba/tree/main/labs/cdk/ec2-vpc) supports the following definitions:
 
 ![](./diagrams/hands-on-vpc.drawio.svg){ width= "1000" }
 

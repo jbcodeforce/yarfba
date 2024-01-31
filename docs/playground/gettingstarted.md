@@ -74,7 +74,7 @@ echo "<h3>Hello World from $(hostname -f) in AZ= $EC2_AZ </h3>" > /var/www/html/
 
 Once launched, from the console, get the DNS name or the public IP address and try a curl or use your web browser to that HTTP address (not https).
 
-We can do the same with IaC, see the example [labs/cdk/ec2-basic](https://github.com/jbcodeforce/aws-studies/tree/main/labs/cdk/ec2-basic) and use the output to get the URL of the web server.
+We can do the same with IaC, see the example [labs/cdk/ec2-basic](https://github.com/jbcodeforce/yarkba/tree/main/labs/cdk/ec2-basic) and use the output to get the URL of the web server.
 
 ### Troubleshooting
 
@@ -148,7 +148,7 @@ sudo cp src/redis-cli /usr/local/bin/
 redis-server --protected-mode no
 ```
 
-See also the cloud formation template [labs/networking](https://github.com/jbcodeforce/aws-studies/tree/main/labs/networking)
+See also the cloud formation template [labs/networking](https://github.com/jbcodeforce/yarkba/tree/main/labs/networking)
 
 
 ## A High availability WebApp deployment summary
@@ -186,7 +186,7 @@ Based on the AWS essential training, here is a quick summary of the things to do
 
 ## Create a EC2 instance with Terraform
 
-* Build a main.tf [labs/terraform-vpc](https://github.com/jbcodeforce/aws-studies/tree/main/labs/terraform-vpc), which uses the aws provider to provision a micro EC2 instance:
+* Build a main.tf [labs/terraform-vpc](https://github.com/jbcodeforce/yarkba/tree/main/labs/terraform-vpc), which uses the aws provider to provision a micro EC2 instance:
 
     ```json
     terraform {

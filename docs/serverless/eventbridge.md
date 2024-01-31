@@ -110,7 +110,7 @@ With the **archive and replay** feature, EventBridge can record any events proce
 
     ![](./diagrams/eda-eb-lab-arch.drawio.png)
 
-    It is also refactorized in [labs/eda](https://github.com/jbcodeforce/aws-studies/tree/main/labs/eda), (see readme).
+    It is also refactorized in [labs/eda](https://github.com/jbcodeforce/yarfba/tree/main/labs/eda), (see readme).
 
     1. The event bridge to API gateway communication, illustrates that events can be pushed to HTTP endpoint, using Basic authentication. The demo also includes a lambda function to act as an authorizer by looking at the header token inside the HTTP request.
     1. Orders event bus has a routing rule to send to Step function when the detail of the event includes a `location` attribute with a prefix starting by "eu". The Step function sends back an event to the same source, `com.aws.orders` with a new order_id. 

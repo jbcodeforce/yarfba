@@ -203,7 +203,7 @@ Use chaos engineering, playbooks and test function and performance.
 
 ### Reliability- deeper dive
 
-See also files in [labs/reliability](https://github.com/jbcodeforce/aws-studies/tree/main/labs/reliability) folder.
+See also files in [labs/reliability](https://github.com/jbcodeforce/yarfba/tree/main/labs/reliability) folder.
 
 * [Disaster recovery labs from AWS](https://www.wellarchitectedlabs.com/reliability/disaster_recovery/)
 * [Reliability workshop.](https://catalog.workshops.aws/well-architected-reliability/en-US/4-failure-management)

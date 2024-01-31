@@ -3,8 +3,15 @@
 !!! Info
     Created 12/8/2022 - Updated 11/26/23
 
-AWS has a lot of services to manage data. This is an introduction of some services needed in a lot of solutions.
+AWS has a lot of services to manage data. This is an introduction of some services needed in a lot of solutions. 
 
+For a product agnostic study on the data processing see [these set of notes](https://jbcodeforce.github.io/data/).
+
+* The AWS services solve **volume** challenges are [Amazon S3](../infra/storage.md/#s3-simple-storage-service), [AWS Lake Formation](data-lake.md/#lake-formation), [Amazon Redshift](./redshift.md). 
+* For **Variety**, Amazon Relational Database Service (Amazon RDS), Amazon DynamoDB, Amazon Redshift, Amazon OpenSearch Service
+* To support **Velocity**, Amazon EMR, Amazon Managed Streaming for Apache Kafka (Amazon MSK), Amazon Kinesis, AWS Lambda.
+* **Veracity** is supported by EMR, AWS Glue (prepare and integrate all the data at any scale), AWS Glue DataBrew (clean and normalize data faster and more efficiently), and Amazon DataZone (share data across the organization with built-in governance).
+* **Value** can be addressed using Amazon QuickSight, Amazon SageMaker, Amazon Athena
 
 ## [AWS Glue](https://aws.amazon.com/glue/)
 

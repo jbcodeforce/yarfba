@@ -19,11 +19,13 @@ In AWS context, a set of AWS services support your data strategy:
 
 ## Big Data
 
-The 3 V's of big data are 
+The 5 V's of big data are:
 
-* Volume: we are at the terabytes and petabytes level. 
-* Variety: includes data from a wide range of sources and formats
-* Velocity: data needs to be collected, stored, processed and analyzed withn a short period of time.
+* **Volume:** terabytes, petabytes and even exabytes level. 
+* **Variety:** includes data from a wide range of sources and formats.
+* **Velocity:** data needs to be collected, stored, processed and analyzed within a short period of time.
+* **Veracity:** Trust the data. Ensure data integrity within the entire data chain: security and free from compromise.
+* **Value:** get the usefulness from the data, by querying the data and generate reports.
 
 ## Data engineering capabilities
 

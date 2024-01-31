@@ -1,6 +1,6 @@
-# [Lambda](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html)
+# [AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html)
 
-This document is a quick summary of the Lambda technology, links to interesting content, labs, and sharing some best practices.
+This document is a quick summary of the AWS Lambda technology, links to interesting content, labs, and sharing some best practices.
 
 !!! Info
     Created 11/2023 - Updated 01/29/2024
@@ -67,7 +67,7 @@ A  Lambda function has three primary components – trigger, code, and configura
 * Per region deployment.
 * Must run under 15 min.
 * Memory from 128MB to 10GB.
-* Maximum 100 concurrent calls.
+* Maximum 1000 concurrent calls.
 * Code in compressed zip should be under 50MB and 250MB uncompressed.
 * Disk capacity for /tmp is limited to 10GB.
 
@@ -84,7 +84,7 @@ A  Lambda function has three primary components – trigger, code, and configura
 For AWS Lambda, AWS manages the underlying infrastructure and foundation services, the operating system, and the application platform. Developer need to ensure code, libraries, configuration, IAM are well set. Some security considerations:
 
 * Data privacy with encryption at rest with customer managed Key, encryption in transit, access control.
-* Function runtime environment variables are secured by encryption using a Lambda-managed KMS key (named `aws/lambda`). The Create Function API cor UpdateFunctionConfiguration may use KMS Keys.
+* Function runtime environment variables are secured by encryption using a Lambda-managed KMS key (named `aws/lambda`). The `CreateFunction` API or `UpdateFunctionConfiguration` may use KMS Keys.
 * AWS X-Ray also encrypts data by default.
 * TLS1.2 for all public APIs.
 * Run on EC2 with Nitro System for better security isolation.
@@ -92,8 +92,8 @@ For AWS Lambda, AWS manages the underlying infrastructure and foundation service
 * It provides a code signing feature to ensure only trusted code is run in the Lambda function.
 
 * Lambda also supports function URLs, a built-in HTTPS endpoint for invoking functions. No need for API Gateway and ALB.
-* Each Lambda exec environment include a writeable /tmp: files written within it, remain for the lifetime of the execution environment.
-* Also to enable our Lambda function to access resources inside our private VPC, we must provide additional VPC-specific configuration information that includes VPC subnet IDs and security group IDs. AWS Lambda uses this information to set up elastic network interfaces (ENIs) that enable the function to connect securely to other resources in the VPC. 
+* Each Lambda exec environment includes a writeable /tmp folder: files written within it, remain for the lifetime of the execution environment.
+* Also to enable the Lambda function to access resources inside the private VPC, we must provide additional VPC-specific configuration information that includes VPC subnet IDs and security group IDs and the `AWSLambdaVPCAccessExecutionRole` policy. AWS Lambda uses this information to set up elastic network interfaces (ENIs) that enable the function to connect securely to other resources in the VPC. 
 
     ![](./diagrams/vpc-lambda.drawio.png)
 
@@ -101,7 +101,7 @@ For AWS Lambda, AWS manages the underlying infrastructure and foundation service
 
     If it runs out of IP@ then we will have EC2 error types like `EC2ThrottledException` and the function will not scale. So be sure to have multiple AZ/ subnets and enough IP@.
 
-* For the function to access to the internet, route outbound traffic to a NAT gateway in one public subnet in the VPC.
+* For the function to access the internet, route outbound traffic to a NAT gateway in one public subnet in the VPC.
 * To establish a private connection between the VPC and Lambda, create an interface VPC endpoint (using AWS PrivateLink). Traffic between the VPC and Lambda does not leave the AWS network.
 
     ```sh
@@ -123,13 +123,11 @@ Lambda resource policies are :
 * Created when we add a trigger to a Lambda function.
 * Allows the event source to take the `lambda:InvokeFunction` action.
 
-For a Lambda function to access resource within a VPC, we need to define VPC specific configuration about subnet Id and security group, and the `AWSLambdaVPCAccessExecutionRole` policy. 
-
 We can use Parameter Store, from System Manager, to reference Secrets Manager secrets,  creating a consistent and secure process for calling and using secrets and reference data in the code and configuration script. 
 
 ## Scaling and [quotas](https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-limits.html)
 
-Lambda invokes our code in a secure and isolated execution environment, which needs to be initialized and then executes the function code for the unique request it handles. Second request will not have the initialization step. When requests arrive, Lambda reuses available execution environments, and creates new ones if necessary.
+Lambda invokes the code in a secure and isolated execution environment, which needs to be initialized and then executes the function code for the unique request it handles. Second request will not have the initialization step. When requests arrive, Lambda reuses available execution environments, and creates new ones if necessary.
 
 The number of execution environments determines the concurrency. Limited to 1000 by default.
 
@@ -137,11 +135,11 @@ When the number of requests decreases, Lambda stops unused execution environment
 
 Use the Lambda CloudWatch metric named `ConcurrentExecutions` to view concurrent invocations for all or individual functions. To estimate concurrent requests use:  **Request per second * Avg duration in seconds = concurrent requests**
 
-Lambda scales to very high limits, but not all account concurrency is available immediately, so requests could be throttled for a few minutes in case of burst. 
+Lambda scales to very high limits, but not all account's concurrency quota is available immediately, so requests could be throttled for a few minutes in case of burst. 
 
 There are two scaling quotas to consider with concurrency. Account concurrency quota (1000 per region) and burst concurrency quota (from 500 to 3000 per min per region). Further requests are throttled, and lambda returns HTTP 429 (too many requests).
 
-Use Concurrency limit to guarantee concurrency availability for a function, or to avoid overwhelming a downstream resource that our function is interacting with.
+Use `concurrency limit` to guarantee concurrency availability for a function, or to avoid overwhelming a downstream resource that the function is interacting with.
 
 If the test results uncover situations where functions from different applications or different environments are competing with each other for concurrency, we probably need to rethink the account segregation strategy and consider moving to a multi-account strategy.
 
@@ -151,15 +149,15 @@ Memory is the only setting that can impact performance. Both CPU and I/O scale l
 
 
 * [AWS Lambda Power Tuning tool to find the right memory configuration](https://github.com/alexcasalboni/aws-lambda-power-tuning).
-* [Understanding AWS Lambda scaling and throughput - blog](https://aws.amazon.com/blogs/compute/understanding-aws-lambda-scaling-and-throughput/)
+* [Understanding AWS Lambda scaling and throughput - an AWS blog](https://aws.amazon.com/blogs/compute/understanding-aws-lambda-scaling-and-throughput/).
 
 ### Edge Function
 
-When we need to customize the CDN content, we can use Edge Function to run close to the end users. 
+When we need to customize the CDN content, we can use Edge Function to run closer to the end users.
 
 CloudFront provides two types: CloudFront functions or Lambda@Edge.
 
-Can be used for:
+Edge can be used for:
 
 * Website security and privacy.
 * Dynamic web application at the Edge.
@@ -171,7 +169,7 @@ Can be used for:
 
 ## Monitoring
 
-Distributed tracing helps pinpoint where failures occur and what causes poor performance. Tracing is about understanding the path of data as it propagates through the components of our application.
+Distributed tracing helps pinpoint where failures occur and what causes poor performance. Tracing is about understanding the path of data as it propagates through the components of the application.
 
 All Lambda functions logs are automatically integrated with CloudWatch. Amazon CloudWatch Lambda Insights is a monitoring and troubleshooting solution for serverless applications running on Lambda. Lambda Insights collects, aggregates, and summarizes system-level metrics. It also summarizes diagnostic information such as cold starts and Lambda worker shutdowns to help isolate issues with the Lambda functions and resolve them quickly.
 
@@ -315,7 +313,7 @@ by bin(5min)
 
 ### Python function with dependencies
 
-It is common to have a function that needs libraries not in the standard python 3.x environment. So the approach is to use a zip file as source of the function with all the dependencies inside it. The process to build such zip can be summarized as:
+It is common to have a function that needs libraries not in the standard Python 3.x environment. The approach is to use a zip file as source of the function with all the dependencies inside it. The process to build such zip can be summarized as:
 
 * `lambda` is the folder with code and future dependencies. It has a `requirements.txt` file to define dependencies.
 * do a `pip install --target ./package -r requirements.txt`
@@ -326,7 +324,7 @@ It is common to have a function that needs libraries not in the standard python 
     zip -r ../lambda-layer.zip .
     ```
 
-* The zip can be used as a layer, so reusable between different lambda functions. For that upload the zip to a s3 bucket and create a layer in the Lambda console, referencing the zip in s3 bucket.
+* The zip can be used as a **layer**, so reusable between different lambda functions. For that upload the zip to a `S3` bucket and create a layer in the Lambda console, referencing the zip in S3 bucket.
 * A layer can be added to any lambda function, then the libraries included in the layer can be imported in the code. Example is the XRay tracing capability in Python.
 * We can also add the lambda-function code in the zip and modify the existing function, something like:
 
@@ -335,9 +333,9 @@ It is common to have a function that needs libraries not in the standard python 
     aws lambda update-function-code --function-name  ApigwLambdaCdkStack-SageMakerMapperLambda2EFF1AC9-bERmXFWzvWSC --zip-file fileb://lambda-layer.zip
     ```
 
-See also [the from-git-to-slack-serverless repository](https://github.com/jbcodeforce/from-git-to-slack-serverless) for Python lambda and SAM for deployment.
+See also [the from-git-to-slack-serverless repository](https://github.com/jbcodeforce/from-git-to-slack-serverless) for a Lambda example in Python using SAM for deployment.
 
-### Java function
+### Java based function
 
 [We can run java code in Lambda](https://docs.aws.amazon.com/lambda/latest/dg/lambda-java.html) and implement different [handlers](https://docs.aws.amazon.com/lambda/latest/dg/java-handler.html).
 
@@ -351,9 +349,9 @@ public class HandlerWeatherData implements RequestHandler<WeatherData,WeatherDat
     public WeatherData handleRequest(WeatherData event, Context context) {
 ```
 
-Code can be uploaded as jar or zip to a S3 bucket, and cloudFormation template or CDK can define the lambda function.
+Code can be uploaded as jar or zip to a S3 bucket, and CloudFormation template or CDK can define the lambda function.
 
-In the Java code template in [folder](https://github.com/jbcodeforce/aws-studies/tree/main/labs/lambdas/java-sample) the Lambda processes a JavaBean and we can build a docker image, push to ECR and use CDK to deploy the function. 
+In the Java code template in [folder](https://github.com/jbcodeforce/yarfba/tree/main/labs/lambdas/java-sample) the Lambda processes a JavaBean and we can build a docker image, push to ECR and use CDK to deploy the function. 
 
 ```dockerfile
 FROM public.ecr.aws/lambda/java:11
@@ -374,7 +372,7 @@ To be sure the dependencies are used, use the build plugin in maven:
        ....
 ```
 
-See the [readme for instructions](https://github.com/jbcodeforce/aws-studies/tree/main/labs/lambdas/java-sample/README.md).
+See the [readme for instructions](https://github.com/jbcodeforce/yarfba/tree/main/labs/lambdas/java-sample/README.md).
 
 [Product documentation: Deploy Java Lambda functions with container images.](https://docs.aws.amazon.com/lambda/latest/dg/java-image.html).
 
@@ -390,18 +388,21 @@ aws_lambda.DockerImageFunction(self,"JavaLambda",
              architecture=aws_lambda.Architecture.ARM_64)
 ```
 
-* [Java on AWS Lambda workshop.](https://catalog.workshops.aws/java-on-aws-lambda/en-US) to discover best practices for Java and Lambda using GraalVM or SnapStart
+[Java on AWS Lambda workshop ](https://catalog.workshops.aws/java-on-aws-lambda/en-US) to discover best practices for Java and Lambda using GraalVM or SnapStart
 
+### CI/CD
+
+[Workshop: Building CI/CD pipelines for Lambda canary deployments using AWS CDK](https://catalog.us-east-1.prod.workshops.aws/workshops/5195ab7c-5ded-4ee2-a1c5-775300717f42/en-US)
 
 ### Other personal implementations
 
-* [Lamdba prepared by SAM + tutorial form AWS Lambda powertool](https://github.com/jbcodeforce/aws-studies/tree/main/labs/lambdas/lambda-dynamo) with API gateway.
-* [S3 to Lambda to S3 for data transformation](https://github.com/jbcodeforce/aws-studies/tree/main/labs/lambdas/s3-lambda)
+* [Lamdba prepared by SAM + tutorial form AWS Lambda powertool](https://github.com/jbcodeforce/yarfba/tree/main/labs/lambdas/lambda-dynamo) with API gateway.
+* [S3 to Lambda to S3 for data transformation](https://github.com/jbcodeforce/yarfba/tree/main/labs/lambdas/s3-lambda)
 * [Big data SaaS: lambda to call SageMaker](https://github.com/jbcodeforce/big-data-tenant-analytics/tree/main/setup/apigw-lambda-cdk/lambda)
 
 ## FAQs
 
-* [Official one](https://aws.amazon.com/lambda/faqs/)
+* [The Amazon official FAQs.](https://aws.amazon.com/lambda/faqs/)
 
 ## Best practices
 
@@ -446,5 +447,5 @@ Extracted from [the Top best practices and tips for building Serverless applicat
 * [Youtube videos - Build on serverless 2019](https://www.youtube.com/playlist?list=PLJV9303TMVKzFk1CNV_bStVZd3ZhW8dNz).
 * [Lambda- configuring reserved concurrency](https://docs.aws.amazon.com/lambda/latest/dg/configuration-concurrency.html)
 * [Increasing real-time stream processing performance with Amazon Kinesis Data Streams enhanced fan-out and AWS Lambda](https://aws.amazon.com/blogs/compute/increasing-real-time-stream-processing-performance-with-amazon-kinesis-data-streams-enhanced-fan-out-and-aws-lambda/)
-* [Powertool for python](https://github.com/awslabs/aws-lambda-powertools-python) a developer toolkit to implement Serverless best practices and increase developer velocity.
-* [Powertool for Java](https://github.com/awslabs/aws-lambda-powertools-java).
+* [Powertool for AWS Lambda - Python](https://github.com/awslabs/aws-lambda-powertools-python) a developer toolkit to implement Serverless best practices and increase developer velocity.
+* [Powertool for AWS Lambda - Java](https://github.com/awslabs/aws-lambda-powertools-java).

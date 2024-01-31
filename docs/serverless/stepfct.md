@@ -79,20 +79,20 @@ Each catcher can specify multiple errors to handle. The reserved name `States.AL
 
 ## Hands-on demo
 
-We can use [LocalStack](https://docs.localstack.cloud/user-guide/aws/stepfunctions/) to start developing Step function in vscode and run locally. See the [labs/step/first-solution](https://github.com/jbcodeforce/aws-studies/tree/main/labs/step/first-solution)
+We can use [LocalStack](https://docs.localstack.cloud/user-guide/aws/stepfunctions/) to start developing Step function in vscode and run locally. See the [labs/step/first-solution](https://github.com/jbcodeforce/yarfba/tree/main/labs/step/first-solution)
 
 ### Basic Step flow to Lambda call
 
-See the Lab in [labs/step/step2lambda folder](https://github.com/jbcodeforce/aws-studies/tree/main/labs/step/step2lambda).
+See the Lab in [labs/step/step2lambda folder](https://github.com/jbcodeforce/yarfba/tree/main/labs/step/step2lambda).
 
 ### Simple solution
 
-This demo includes all the basic control flow constructs for a worflow: call lambda, read from DynamodDB, and perform Map computation. See the [labs/step/first-solution](https://github.com/jbcodeforce/aws-studies/tree/main/labs/step/first-solution).
+This demo includes all the basic control flow constructs for a workflow: call lambda, read from DynamoDB, and perform Map computation. See the [labs/step/first-solution](https://github.com/jbcodeforce/yarfba/tree/main/labs/step/first-solution).
 
 
 ### Image processing from S3
 
-Image processing for Autonomous car: upload traveller's shelfie photos, to build a collection against it a camera can send a new image to recognize the traveller's face so he/she can enter in the car. This example is based on the [image processing with step function workshop](https://www.image-processing.serverlessworkshops.io/). See [this repo](https://github.com/jbcodeforce/traveller-recognition.git) for SAM / CloudFormation templates and function code.
+Image processing for Autonomous car: upload traveler's selfie photos, to build a collection against it a camera can send a new image to recognize the traveler's face so he/she can enter in the car. This example is based on the [image processing with step function workshop](https://www.image-processing.serverlessworkshops.io/). See [this repo](https://github.com/jbcodeforce/traveller-recognition.git) for SAM / CloudFormation templates and function code.
 
 ## [Step Function FAQs](https://aws.amazon.com/step-functions/faqs/)
 
