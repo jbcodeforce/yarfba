@@ -475,4 +475,3 @@ AWS Lambda allows you to publish multiple versions of the same function. Each ve
 ## My examples
 
 * [Repo to illustrate Getting GitHub events to API gtw, Lambda and Slack in Python](https://github.com/jbcodeforce/from-git-to-slack-serverless)
-* [A simple solution](https://github.com/jbcodeforce/aws-studies/)

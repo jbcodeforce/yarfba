@@ -263,6 +263,13 @@ AWS CodeBuild is a fully managed build service that compiles source code, runs t
 
 ## [CodeDeploy](https://docs.aws.amazon.com/codedeploy/latest/userguide/welcome.html)
 
+The key concepts to keep in mind are:
+
+* **Application**: tells AWS CodeDeploy what to deploy and how to deploy it. For AWS Lambda application specifies a new version of a Lambda function and how to shift traffic to it.
+* **Deployments**: lists an application's current and past deployments.
+* **Deployment groups**: includes details about a target environment, how traffic shifts during a deployment, and monitoring settings.
+* **Revisions**: contains a version of the source files to deploy to your instances or specifies the version of a Lambda function to shift traffic to.
+
 
 ## [CodeStar](https://aws.amazon.com/codestar/)
 
@@ -331,7 +338,7 @@ Amazon CodeWhisperer offers developers a new and seamless way to build applicati
     In the IDE like VScode, install the [AWS Toolkit](https://docs.aws.amazon.com/toolkit-for-vscode/latest/userguide/welcome.html). Then choose the authentication method, and set up [our Builder ID](https://docs.aws.amazon.com/toolkit-for-vscode/latest/userguide/builder-id.html), IAM Identity Center, or IAM credential.
 
 ???+ info "Python app with CDK and lambda demonstration."
-    The code is in [labs/code-whisperer-demo](https://github.com/jbcodeforce/aws-studies/tree/main/labs/code-whisperer-demo) with a readme to demonstrate the code generation capability.
+    The code is in [labs/code-whisperer-demo](https://github.com/jbcodeforce/yarfba/tree/main/labs/code-whisperer-demo) with a readme to demonstrate the code generation capability.
 
 ### Codewhisperer resources:
 

@@ -4,7 +4,7 @@ The AWS CDK lets us build reliable, scalable, cost-effective applications in AWS
 
 Build with high-level constructs to define any AWS resources with less code. The output of an AWS CDK program is an AWS CloudFormation template which can be deployed with the cdk CLI.
 
-### Advantages
+## Advantages
 
 * Developers write IaC code in their programming language, with the power of the language to do more complex things than in templates. 
 * More flexible than SAM and less complex than CloudFormation templates.
@@ -12,7 +12,7 @@ Build with high-level constructs to define any AWS resources with less code. The
 * Easier way to create lots of similar resources.
 * Ability to abstract truly boilerplate stuff like a VPC.
 
-### Some caveats
+## Some caveats
 
 * Multiple programming language means different developer groups will use different CDK implementation, leading to governance issues. In most enterprise it is not that relevant, and teams are still quite isolated and applying agile manifesto, use the tools they are more confortable to be efficient.
 * CDK abstraction level is may be too high and we have to learn by increment to clearly understand what each construct is really building as AWS resources. 
@@ -80,20 +80,38 @@ cdk --version
 cdk ls
 ```
 
-The first time we deploy an AWS CDK app into an environment (account/region), we’ll need to install a “bootstrap stack”. This stack includes resources that are needed for the toolkit’s operation. It requires dedicated Amazon S3 buckets to store template and assets. 
+The first time we deploy an AWS CDK app into an environment (account/region), we’ll need to install a “bootstrap stack”. 
+
+```sh
+cdk bootstrap aws://$ACCOUNT/$REGION -c account=$ACCOUNT -c environmentType=qa --profile $PROFILE
+```
+
+This stack includes resources that are needed for the toolkit’s operation. It requires dedicated Amazon S3 buckets to store template and assets.
 
 ![](./images/cdk-toolkit-cf.png)
 
-CDK applications should be organized into logical units, such as API, database, and monitoring resources, and optionally have a pipeline for automated deployments
+CDK applications should be organized into logical units, such as API, database, and monitoring resources, and optionally have a pipeline for automated deployments.
 
 For an application with multiple components/microservices, it is possible to organize different stacks, one per component for example, and then link them with a single app. See example in [CDK project template](https://github.com/jbcodeforce/aws-cdk-project-templates) or [Autonomous Car Ride Solution]()
 
-When packages begin to be used in multiple applications, move them to their own repository. This way, the packages can be referenced by application build systems that use them, and they can also be updated on cadences independent of the application lifecycles.
+When packages begin to be used in multiple applications, move them to their own repository. This way, the packages can be referenced by application build systems that use them, and they can also be updated on cadences independent of the application life cycles.
 
 * See [CDK workshops](https://cdkworkshop.com/).
 * The [CDK for Python API](https://docs.aws.amazon.com/cdk/api/v2/python/index.html).
 
-## CDK Python for an EC2
+## Useful CDK commands
+
+ * `cdk ls`          list all stacks in the app
+ * `cdk synth`       emits the synthesized CloudFormation template
+ * `cdk deploy`      deploy this stack to the default AWS account/region
+ * `cdk diff`        compare deployed stack with current state
+ * `cdk docs`        open CDK documentation
+ * `cdk watch`       monitors the code and assets for changes and attempts to perform a deployment automatically when a change is detected
+ * `cdk destroy`    remove all the resources/stacks. Most resources will get deleted upon stack deletion. CloudWatch logs that are permanently retained
+
+## Samples
+
+### CDK Python for an EC2
 
 * Summary of the actions to jumpstart a CDK sample app in python
 
@@ -159,37 +177,40 @@ dk deploy  --context s3bucketname=<the name of the s3 bucket> --all
 
 ### Some personal examples
 
-See the [labs/cdk](https://github.com/jbcodeforce/aws-studies/tree/main/labs/cdk) folder for some examples of CDK stack definitions: 
+See the [labs/cdk](https://github.com/jbcodeforce/yarfba/tree/main/labs/cdk) folder for some examples of CDK stack definitions: 
 
 | Folder | Description |
 | --- | --- |
-| [labs/cdk/ec2-basic](https://github.com/jbcodeforce/aws-studies/tree/main/labs/cdk/ec2-vpc) | EC2 with http server, and security group for inbound traffic deployed on default VPC |
-| [labs/cdk/ec2-vpc](https://github.com/jbcodeforce/aws-studies/tree/main/labs/cdk/ec2-vpc) | EC2 with VPC and public & private subnets, NAT, IGW, Bastion Host |
-| [labs/cloud9](https://github.com/jbcodeforce/aws-studies/tree/main/labs/cloud9) for a cloud9 environment for a specific VPC
-| [labs/cdk/cdk_workhop](https://github.com/jbcodeforce/aws-studies/tree/main/labs/cdk/cdk_workshop) | Lambda functions in python with an API gateway and TableViewer.|
-| [lab ECS fargate Flask App](https://github.com/jbcodeforce/aws-studies/tree/main/labs/cdk/ecs-fargate-flask) | VPC with ECS fargate for a Flask APP where container is created during deployment | 
-| [lab EKS](https://github.com/jbcodeforce/aws-studies/tree/main/labs/eks/eks-cdk/) | VPC with EKS cluster deployment | 
+| [labs/cdk/ec2-basic](https://github.com/jbcodeforce/yarfba/tree/main/labs/cdk/ec2-vpc) | EC2 with http server, and security group for inbound traffic deployed on default VPC |
+| [labs/cdk/ec2-vpc](https://github.com/jbcodeforce/yarfba/tree/main/labs/cdk/ec2-vpc) | EC2 with VPC and public & private subnets, NAT, IGW, Bastion Host |
+| [labs/cloud9](https://github.com/jbcodeforce/yarfba/tree/main/labs/cloud9) for a cloud9 environment for a specific VPC
+| [labs/cdk/cdk_workhop](https://github.com/jbcodeforce/yarfba/tree/main/labs/cdk/cdk_workshop) | Lambda functions in python with an API gateway and TableViewer.|
+| [lab ECS fargate Flask App](https://github.com/jbcodeforce/yarfba/tree/main/labs/cdk/ecs-fargate-flask) | VPC with ECS fargate for a Flask APP where container is created during deployment | 
+| [lab EKS](https://github.com/jbcodeforce/yarfba/tree/main/labs/eks/eks-cdk/) | VPC with EKS cluster deployment | 
 | [cdk with lambda and API gateway](https://github.com/jbcodeforce/big-data-tenant-analytics/tree/main/setup/apigw-lambda-cdk) | Python lambda + API gateway |
-| [Lambda java cdk](https://github.com/jbcodeforce/aws-studies/tree/main/labs/lambdas/java-sample/setup) | | 
+| [Lambda java cdk](https://github.com/jbcodeforce/yarfba/tree/main/labs/lambdas/java-sample/setup) | | 
 | [AWS CDK my project template](https://github.com/jbcodeforce/aws-cdk-project-templates) | A template project to organize java deployment on ECR with CDK infrastructure. |
 | AWS [resiliency studies](https://github.com/jbcodeforce/aws-resiliency-studies) | With VPC, ELB, ASG, EC2 |
-| [ec2-vpce-s3](https://github.com/jbcodeforce/aws-studies/tree/main/labs/networking/ec2-vpce-s3) to map the connection [debug use case](../infra/networking.md/#vpc-endpoint-policies) | EC2 to VPC gateway endpoint to S3 bucket | 
+| [ec2-vpce-s3](https://github.com/jbcodeforce/yarfba/tree/main/labs/networking/ec2-vpce-s3) to map the connection [debug use case](../infra/networking.md/#vpc-endpoint-policies) | EC2 to VPC gateway endpoint to S3 bucket | 
 
-## Useful CDK commands
 
- * `cdk ls`          list all stacks in the app
- * `cdk synth`       emits the synthesized CloudFormation template
- * `cdk deploy`      deploy this stack to the default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk docs`        open CDK documentation
- * `cdk watch`       monitors the code and assets for changes and attempts to perform a deployment automatically when a change is detected
- * `cdk destroy`    remove all the resources/stacks. Most resources will get deleted upon stack deletion. CloudWatch logs that are permanently retained
 
-## [CDK Blueprint for EKS](https://aws.github.io/aws-eks-best-practices/)
+### [CDK Blueprint for EKS](https://aws.github.io/aws-eks-best-practices/)
 
 * [Blog introduction EKS blueprint](https://aws.amazon.com/blogs/containers/bootstrapping-clusters-with-eks-blueprints/)
 * [AWS CDK EKS blueprint git repo](https://aws-quickstart.github.io/cdk-eks-blueprints/)
 
+### Other tools - samples
+
+* [CDK API v2 for Python](https://docs.aws.amazon.com/cdk/api/v2/python/)
+* [Pypi.org search](https://pypi.org/search/?q=aws-cdk) needed when using alpha or beta libraries.
+* [CDK Patterns](https://cdkpatterns.com/patterns)
+* [cdk-dynamo-table-viewer](https://pypi.org/project/cdk-dynamo-table-view/) An AWS CDK construct which exposes a public HTTP endpoint which displays an HTML page with the contents of a DynamoDB table defined in the stack.
+* [AWS CDK samples in Python](https://github.com/aws-samples/aws-cdk-examples/tree/master/python)
+* [Constructs HUB](https://constructs.dev/)
+* [A Flask app for orders management with DynamoDB as persistence - ECR - CDK](https://github.com/jbcodeforce/python-code/tree/master/aws/dynamoDB)
+* [Big Data SaaS demo](https://github.com/jbcodeforce/big-data-tenant-analytics/tree/main/setup)
+* [AWS CDK labs](https://github.com/cdklabs)
 
 ## Some how-tos
 
@@ -248,7 +269,7 @@ See the [labs/cdk](https://github.com/jbcodeforce/aws-studies/tree/main/labs/cdk
         user.add_managed_policy(policy)
     ```
 
-    See [this cdk for the abac tutorials](https://github.com/jbcodeforce/aws-studies/tree/main/labs/security/iam/abac)
+    See [this cdk for the abac tutorials](https://github.com/jbcodeforce/yarfba/tree/main/labs/security/iam/abac)
 
 
 
@@ -398,7 +419,7 @@ See the [labs/cdk](https://github.com/jbcodeforce/aws-studies/tree/main/labs/cdk
     images = apiGtw.root.add_resource('images')
     images.add_method('POST',  apigw.LambdaIntegration(getImageFct))
     ```
-    See [code whisperer demo](https://github.com/jbcodeforce/aws-studies/tree/main/labs/code-whisperer-demo)
+    See [code whisperer demo](https://github.com/jbcodeforce/yarfba/tree/main/labs/code-whisperer-demo)
 
 ???- "Create a bastion from a custom AMI (Java 17, maven, docker)"
     See the VPCstack definition in [aws-cdk-project template](https://github.com/jbcodeforce/aws-cdk-project-templates/blob/main/VPCstack/vpc_stack.py).
@@ -432,14 +453,3 @@ See the [labs/cdk](https://github.com/jbcodeforce/aws-studies/tree/main/labs/cdk
     s3_bucket_name=self.node.try_get_context("s3bucketname")
     ```
 
-## Other tools - samples
-
-* [CDK API v2 for Python](https://docs.aws.amazon.com/cdk/api/v2/python/)
-* [Pypi.org search](https://pypi.org/search/?q=aws-cdk) needed when using alpha or beta libraries.
-* [CDK Patterns](https://cdkpatterns.com/patterns)
-* [cdk-dynamo-table-viewer](https://pypi.org/project/cdk-dynamo-table-view/) An AWS CDK construct which exposes a public HTTP endpoint which displays an HTML page with the contents of a DynamoDB table defined in the stack.
-* [AWS CDK samples in Python](https://github.com/aws-samples/aws-cdk-examples/tree/master/python)
-* [Constructs HUB](https://constructs.dev/)
-* [A Flask app for orders management with DynamoDB as persistence - ECR - CDK](https://github.com/jbcodeforce/python-code/tree/master/aws/dynamoDB)
-* [Big Data SaaS demo](https://github.com/jbcodeforce/big-data-tenant-analytics/tree/main/setup)
-* [AWS CDK labs](https://github.com/cdklabs)

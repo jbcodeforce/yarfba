@@ -30,7 +30,7 @@ Pay for what the resources use.
 
 ## Get started
 
-The infrastructure is defined in Stack. The below example is for an EC2 instance with a user data declaration to install and start Apache webserver, by referencing an existing SSH key pair and security group. See in the folder [labs/CF](https://github.com/jbcodeforce/aws-studies/tree/main/labs/CF).
+The infrastructure is defined in Stack. The below example is for an EC2 instance with a user data declaration to install and start Apache webserver, by referencing an existing SSH key pair and security group. See in the folder [labs/CF](https://github.com/jbcodeforce/yarfba/tree/main/labs/CF).
 
 ```yaml
 Resources:
@@ -153,7 +153,7 @@ Reference in another CF template
 
 ### Custom resources
 
-[Custom resources](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-custom-resources.html) enable to write custom logic executed on CF creating, updating or deleting a stack. It can run a lambda function to do a lot of thing on an environment. See the [lap-template](https://github.com/jbcodeforce/aws-studies/tree/main/labs/security/iam/lab-template.yaml) where a lambda function is called to update a EC2 role or the lambda to update the EC2 for Cloud9.
+[Custom resources](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-custom-resources.html) enable to write custom logic executed on CF creating, updating or deleting a stack. It can run a lambda function to do a lot of thing on an environment. See the [lap-template](https://github.com/jbcodeforce/yarfba/tree/main/labs/security/iam/lab-template.yaml) where a lambda function is called to update a EC2 role or the lambda to update the EC2 for Cloud9.
 
 ```yaml
 Cloud9SSMRole:
@@ -178,7 +178,7 @@ Cloud9SSMRoleFunction:
 
 ### Some personal examples
 
-* [EDA workshop cloud formation stack refactorized - lab/eda](https://github.com/jbcodeforce/aws-studies/tree/main/labs/eda)
+* [EDA workshop cloud formation stack refactorized - lab/eda](https://github.com/jbcodeforce/yarfba/tree/main/labs/eda)
 
 ### Tools
 

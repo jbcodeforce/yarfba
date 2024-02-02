@@ -1,4 +1,4 @@
-# [SageMaker](https://docs.aws.amazon.com/sagemaker/latest/dg/what-is.html)
+# [Amazon SageMaker](https://docs.aws.amazon.com/sagemaker/latest/dg/what-is.html)
 
 ## Introduction
 
