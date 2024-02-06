@@ -177,8 +177,6 @@ dk deploy  --context s3bucketname=<the name of the s3 bucket> --all
 
 ### Some personal examples
 
-See the [labs/cdk](https://github.com/jbcodeforce/yarfba/tree/main/labs/cdk) folder for some examples of CDK stack definitions: 
-
 | Folder | Description |
 | --- | --- |
 | [labs/cdk/ec2-basic](https://github.com/jbcodeforce/yarfba/tree/main/labs/cdk/ec2-vpc) | EC2 with http server, and security group for inbound traffic deployed on default VPC |
@@ -188,6 +186,7 @@ See the [labs/cdk](https://github.com/jbcodeforce/yarfba/tree/main/labs/cdk) fol
 | [lab ECS fargate Flask App](https://github.com/jbcodeforce/yarfba/tree/main/labs/cdk/ecs-fargate-flask) | VPC with ECS fargate for a Flask APP where container is created during deployment | 
 | [lab EKS](https://github.com/jbcodeforce/yarfba/tree/main/labs/eks/eks-cdk/) | VPC with EKS cluster deployment | 
 | [cdk with lambda and API gateway](https://github.com/jbcodeforce/big-data-tenant-analytics/tree/main/setup/apigw-lambda-cdk) | Python lambda + API gateway |
+| [cdk python for lambda, dynamo, api gtw, powertools (autonomous car manager)](https://github.com/jbcodeforce/autonomous-car-mgr.git) | Python lambda + API gateway, dynamoDB, iam policy, Alias and version |
 | [Lambda java cdk](https://github.com/jbcodeforce/yarfba/tree/main/labs/lambdas/java-sample/setup) | | 
 | [AWS CDK my project template](https://github.com/jbcodeforce/aws-cdk-project-templates) | A template project to organize java deployment on ECR with CDK infrastructure. |
 | AWS [resiliency studies](https://github.com/jbcodeforce/aws-resiliency-studies) | With VPC, ELB, ASG, EC2 |
@@ -393,7 +392,7 @@ See the [labs/cdk](https://github.com/jbcodeforce/yarfba/tree/main/labs/cdk) fol
     
     [See VPC stack and bastion host.](https://github.com/jbcodeforce/MSK-labs/blob/main/infrastructure/VPCstack/vpc_stack.py)
 
-???- "Create a lambda with an API gateway"
+???- "Create a lambda (env variable) with an API gateway"
     Create a folder, `api/runtime`, to include the python code for the lambda: `get_image.py`, function `lambda_handler`: 
     ```python
     # import

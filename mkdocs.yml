@@ -32,6 +32,7 @@ nav:
       - All Services: ai-ml/index.md
       - SageMaker: ai-ml/sagemaker.md
       - Bedrock: ai-ml/bedrock.md
+      - Amazon Q: ai-ml/q.md
   - Serverless:
       - Introduction: serverless/index.md
       - Lambda: serverless/lambda.md

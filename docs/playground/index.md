@@ -49,7 +49,7 @@ Try to use AWS Cloud9 to do most of the labs, as it avoids creating internet end
 * [S3 file processing with a Lambda.](https://github.com/jbcodeforce/yarfba/tree/main/labs/lambdas/s3-lambda) 
 * [A java lambda with CDK deployment](https://github.com/jbcodeforce/yarfba/tree/main/labs/lambdas/java-sample) to process weather record.
 * [Car rides generator with python Lambda](https://github.com/jbcodeforce/CarRideGenerator)
-* [Repo to illustrate Getting GitHub events to API gtw, Lambda and Slack in Python](https://github.com/jbcodeforce/from-git-to-slack-serverless)
+* [Repo to illustrate Getting GitHub events to API gtw, Lambda and Slack in Python (SAM based)](https://github.com/jbcodeforce/from-git-to-slack-serverless)
 
 ## Active MQ and messaging
 
