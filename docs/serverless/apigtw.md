@@ -14,7 +14,7 @@ Fully managed service to define, deploy, and monitor APIs within a AWS region. I
 
 It supports hundred of thousands of concurrent API calls. It can even cache backend response (at the stage level) to reduce calls to backend to improve request latency. Only GET methods are cached.
 
-APIs are deployed to "Stages" (dev, prod...). Stage can be rolled back as there is an history of each deployment.
+APIs are deployed to "Stages" (e.g. dev, prod...). Stage can be rolled back as there is an history of each deployment.
 
 API Gateway is not for authentication, and it uses standard capabilities (Mutual TLS, JWT) or different services for authorization: Cognito user pools, resources policies, WAF, lambda authorizer...
 
@@ -22,11 +22,13 @@ CloudWatch is used to trace access and execution loggings. CloudTrail helps logg
 
 API Gateway supports data validation of the required request parameters in the URI, the HTTP headers, and even the payload to adhere to JSON schema.
 
-For data transformation, mapping templates ([Velocity Template Language](https://velocity.apache.org/)) can be added to the integration request to transform the incoming request to the format required by the backend of the application or to transform the backend payload to the format required by the method response.
+One of the common integration is with Lambda. There are two types of integration, the proxy one passes the client request to the lambda function with header, query parameters, etc, while for the non-proxy the developer has to define the integration logic (data transformation) to match the Lambda parameters.
+
+For data transformation, mapping templates ([Velocity Template Language](https://velocity.apache.org/)) can be added to the integration request to transform the incoming request to the format required by the backend of the application or to transform the backend response payload to the format required by the method response.
+
+See [the tutorial: "Build an API Gateway REST API with Lambda non-proxy integration"](https://docs.aws.amazon.com/apigateway/latest/developerguide/getting-started-lambda-non-proxy-integration.html) to go over all those capabilities.
 
 We can define a [custom domain name](https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-custom-domains.html) to get our own URL endpoint and use base path (`/myservice`) mapping to go to the different URLs/APIs served by the domain. We can use API Gateway Version 2 to create and manage Regional custom domain names for REST APIs. The domain name needs to be registered to an internet domain registrar like Route 53.
-
-
 
 ## Designing considerations
 
@@ -132,6 +134,7 @@ There are two types of Lambda authorizers:
 * A request parameter-based 
 
 The lambda can:
+
 * Calling out to an OAuth provider to get an OAuth access token.
 * Calling out to a SAML provider to get a SAML assertion.
 * Generating an IAM policy based on the request parameter values.
@@ -145,6 +148,7 @@ The lambda can:
 
 * [Basic API to front end a Lambda function](https://docs.aws.amazon.com/apigateway/latest/developerguide/getting-started.html).
 * [API Gateway tutorials](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-tutorials.html)
+* [Autonomous car manager with Lambda, API Gateway](https://github.com/jbcodeforce/autonomous-car-mgr)
 * [A lot of serverlessland examples use APIGTW](https://serverlessland.com/search?search=api+gateway).
 * [Serverless examples in this repo.](https://github.com/jbcodeforce/yarfba/tree/main/labs/serverless)
 * [Load an OpenAPI definition in API Gateway.](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-api-from-example.html)

@@ -208,9 +208,9 @@ See [Serverless app Lens in AWS Well Architected.](https://docs.aws.amazon.com/w
 
 ### Scaling
 
-While considering ways to scale our serverless architecture, there are some best practices to consider:
+While considering ways to scale a serverless architecture, there are some best practices to consider:
 
-* Separate our application and database.
+* Separate the application and database.
 * Take advantage of the AWS Global Cloud Infrastructure.
 * Identify and avoid heavy lifting.
 * Monitor for percentile.
@@ -235,7 +235,7 @@ Consider looking after the following questions:
 
 When Amazon SQS is used as a Lambda event source, the Lambda service manages polling the queue. We can set the batch size, concurrency limit, and timeout. Lambda defaults to using five parallel processes to get messages off a queue. If the Lambda service detects an increase in queue size, it will automatically increase how many batches it gets from the queue, each time. The maximum concurrency is 1000. 
 
-SQS will continue to try a failed message up to the maximum receive count specified in the redrive policy, at which point, if a **dead-letter queue** is configured, the failed message will be put into the dead-letter queue and deleted from your SQS queue.
+SQS will continue to try a failed message up to the maximum receive count specified in the re-drive policy, at which point, if a **dead-letter queue** is configured, the failed message will be put into the dead-letter queue and deleted from your SQS queue.
 
 If the visibility timeout expires, before your Lambda function has processed the messages in that batch, any message in that batch that hasn’t been deleted by your function will become visible again. This may generate duplicate processing on the same message. The best practice, is to set your visibility timeout to six times the function timeout.
 
@@ -243,7 +243,7 @@ A concurrency limit that is set too low could definitely cause an increase in me
 
 * [See using lambda with SQS](https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html)
 * [Configure SQS queue to trigger lambda](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-configure-lambda-function-trigger.html)
-* [Tutorial SQS / Lamda, KMS key to encrypt message](https://aws.amazon.com/serverless/use-sqs-as-an-event-source-for-lambda-tutorial/), use Dead Letter Queue.
+* [Tutorial SQS / Lambda, KMS key to encrypt message](https://aws.amazon.com/serverless/use-sqs-as-an-event-source-for-lambda-tutorial/), using Dead Letter Queue.
 
 
 ### Security

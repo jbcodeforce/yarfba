@@ -123,7 +123,9 @@ The following steps are a quick summary of the documentation tutorial to get a L
     # under sam-app
     sam build
     # see .aws-sam folder
-    # Build with Image:
+    # Build with Image on Mac
+    DOCKER_HOST=unix://$HOME/.docker/run/docker.sock sam build --use-container
+    # Build on linux
     sam build --use-container
     ```
 

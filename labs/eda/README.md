@@ -1,6 +1,6 @@
 # Example of EventBridge to different targets
 
-This is an example based on the EDA Workshop but refactorized to put the elements at the good place, applying clear separation of concerns, and integrating the manual steps of the lab as cloud formation resources.
+This is an example based on the EDA Workshop but re-factorized to put the elements at the good place, applying clear separation of concerns, and integrating the manual steps of the lab as cloud formation resources.
 
 The solution looks like:
 

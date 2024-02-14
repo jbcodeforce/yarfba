@@ -28,9 +28,9 @@ Upload the source code, and Lambda takes care of everything required to run and 
 
     ![](./images/lamba-env-lc.png){ width=800 }
 
-    * In **Init phase** Lambda creates or unfreezes an execution environment with the configured resources, downloads the code for the function and all the needed layers, initializes any extensions, initializes the runtime, and then runs the function’s initialization code. After init, the environment is 'Warm'. The extension and runtime inits is part of the `cold start` (<1s). 
-    * **Invoke phase** Lambda invokes the function handler. After the function runs to completion, Lambda prepares to handle another function invocation.
-    * **Shutdown phase:** Lambda shuts down the runtime, alerts the extensions to let them stop cleanly, and then removes the environment.
+    * In the **Init phase** Lambda creates or unfreezes an execution environment with the configured resources, downloads the code for the function and all the needed layers, initializes any extensions, initializes the runtime, and then runs the function’s initialization code. After init, the environment is 'Warm'. The extension and runtime inits is part of the `cold start` (<1s). 
+    * In the **Invoke phase** Lambda invokes the function handler. After the function runs to completion, Lambda prepares to handle another function invocation.
+    * During **Shutdown phase:** Lambda shuts down the runtime, alerts the extensions to let them stop cleanly, and then removes the environment.
 
 ???- Info "Lambda Extension"
     Lambda supports external and internal [extensions](https://docs.aws.amazon.com/lambda/latest/dg/lambda-extensions.html). An external extension runs as an independent process in the execution environment and continues to run after the function invocation is fully processed. Can be used for logging, monitoring, integration...
@@ -41,7 +41,7 @@ Upload the source code, and Lambda takes care of everything required to run and 
     ![](./diagrams/lambda-arch.drawio.png){width=1000}
 
     * Synchronous calls is used for immediate function response, with potential errors returned to the caller. It may return throttles when we hit the concurrency limit.
-    * Asynchronous calls return acknowledgement. Event payloads are always queued for processing before invocation. Internal SQS queue persists messages for up to 6 hours. Queued events are retrieved in batches by Lambda’s poller fleet. The poller fleet is a group of Amazon EC2 instances whose purpose is to process queued event invocations which have not yet been processed. When an event fails all processing attempts, it is discarded by Lambda. The dead letter queue (DLQ) feature allows sending unprocessed events from asynchronous invocations to an Amazon SQS queue or an Amazon SNS topic defined by the customer. Asynchronous processing should be more scalable.
+    * Asynchronous calls return an acknowledgement message. Event payloads are always queued for processing before invocation. Internal SQS queue persists messages for up to 6 hours. Queued events are retrieved in batches by Lambda’s poller fleet. The poller fleet is a group of Amazon EC2 instances whose purpose is to process queued event invocations which have not yet been processed. When an event fails all processing attempts, it is discarded by Lambda. The dead letter queue (DLQ) feature allows sending unprocessed events from asynchronous invocations to an Amazon SQS queue or an Amazon SNS topic defined by the customer. Asynchronous processing should be more scalable.
     * Event source mapping is used to pull messages from different streaming sources and then synchronously calls the Lambda function. It reads using batching and send all the events as argument to the function. If the function returns an error for any of the messages in a batch, Lambda retries the whole batch of messages until processing succeeds or the messages expire. It supports error handling. 
     * If the service is not available. Callers may queue the payload on client-side to retry. If the invoke service receives the payload, the service attempts to identify an available execution environment for the request and passes the payload to that execution environment to complete the invocation. It may lead to create this execution environment.
 
@@ -98,7 +98,9 @@ Memory is the only setting that can impact performance. Both CPU and I/O scale l
 * When connecting a Lambda function to a VPC, Lambda creates an elastic network interface, ENI, for each combination of subnet and security group attached to the function.
 
 #### Private resource within VPC
+
 ![]
+
 #### API Gateway integration
 
 Resources defined as API in Amazon API Gateway may define one or more methods, such as GET or POST which integration routes requests to a Lambda function. We can add a Trigger to a Lambda to get a HTTP API integration from the API Gateway. We configure API Gateway to pass the body of the HTTP request as-is.
