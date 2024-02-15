@@ -452,3 +452,17 @@ dk deploy  --context s3bucketname=<the name of the s3 bucket> --all
     s3_bucket_name=self.node.try_get_context("s3bucketname")
     ```
 
+??? question "Install python dependencies while deploying Lambda"
+    To install Python packages when deploying a Lambda function using the CDK, you can use the Code.fromAsset() option and specify a bundling command that runs pip install.
+
+    ```python
+    acm_lambda = aws_lambda.Function(self, 'CarMgrService',
+            runtime=aws_lambda.Runtime.PYTHON_3_11,
+            code= aws_lambda.Code.from_asset(path="../src/carmgr",
+                        bundling=BundlingOptions(
+                            image= aws_lambda.Runtime.PYTHON_3_11.bundling_image,
+                            command= [
+                                'bash','-c','pip install -r requirements.txt -t /asset-output && cp -au . /asset-output'
+                            ],
+                    )),
+    ```

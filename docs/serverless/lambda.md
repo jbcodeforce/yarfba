@@ -349,7 +349,52 @@ It is common to have a function that needs libraries not in the standard Python 
     ```
 
 * The zip can be used as a **layer**, so reusable between different lambda functions. Upload the zip to a `S3` bucket and create a layer in the Lambda console, referencing the zip in S3 bucket.
+
+    As an alternate here is a CDK declaration for the powertool dependencies:
+
+    ```python
+    powertools_layer = aws_lambda.LayerVersion.from_layer_version_arn(
+            self,
+            id="lambda-powertools",
+            layer_version_arn=f"arn:aws:lambda:{env.region}:017000801446:layer:AWSLambdaPowertoolsPythonV2:61"
+        )
+    
+    ...
+    acm_lambda = aws_lambda.Function(self, 'CarMgrService',
+            runtime=aws_lambda.Runtime.PYTHON_3_11,
+            layers=[powertools_layer],
+            ...
+
+    ```
+
 * A layer can be added to any lambda function, then the libraries included in the layer can be imported in the code. Example is the XRay tracing capability in Python.
+
+???- Warning "project with modules"
+    When the Lambda code is organized with different modules, we may get `Unable to import module 'app':...` when running the function in the Lambda runtime. Here is an example:
+
+    ```python
+    from .acm_model import AutonomousCar, AutonomousCarEvent
+    ```
+
+    The folder tree:
+
+    ```sh
+    src
+    ├── carmgr
+    │   ├── __init__.py
+    │   ├── acm_model.py
+    │   └── app.py
+    └── requirements.txt
+    ``` 
+
+    Add the cdk:
+
+    ```python
+     acm_lambda = aws_lambda.Function(self, 'CarMgrService',
+                    code= aws_lambda.Code.from_asset(path="../src/",
+                    handler='carmgr.app.handler',
+    ```
+
 * We can also add the lambda-function code in the zip and modify the existing function, something like:
 
     ```sh
@@ -357,7 +402,7 @@ It is common to have a function that needs libraries not in the standard Python 
     aws lambda update-function-code --function-name  ApigwLambdaCdkStack-SageMakerMapperLambda2E...C --zip-file file://lambda-layer.zip
     ```
 
-See also [the from-git-to-slack-serverless repository](https://github.com/jbcodeforce/from-git-to-slack-serverless) for a Lambda example in Python using SAM for deployment.
+See the [the from-git-to-slack-serverless repository](https://github.com/jbcodeforce/from-git-to-slack-serverless) for a Lambda example in Python using SAM for deployment and [autonomous-car-mgr project](https://github.com/jbcodeforce/autonomous-car-mgr) for cdk based deployment and more module integration.
 
 ### Java based function
 
