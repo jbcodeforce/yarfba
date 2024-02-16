@@ -249,6 +249,41 @@ An IAM role is an IAM identity (as a user is) that we can create in our account 
 
 When user, application or service assumes a role, it takes the permissions assigned to the role, and **looses** its original permissions. While when we use resource-based policy, the principal doesn't have to give up his permissions. For example if a user in Account A needs to scan DynamoDB table in account A and dumps it in S3 bucket in account B, then it is important to use resource-based policy for S3 bucket, so user does not loose its access to dynamoDB.
 
+#### Attribute-based access control
+
+Attribute-based access control (ABAC) helps to determine access to resources based on attributes of the user, resource, application' states and environment conditions. An ABAC policy could allow access to a payment processing endpoint only for users in the finance department during business hours.
+
+Attributes may come from multiple sources: IAM tags, STS session tags, resource tags.
+
+ABAC gives a lot of flexibility compared to traditional IAM policies by enabling dynamic, context-aware authorization decisions:  who is the user? What are they trying to access? How are they trying to access it? What environment are they in? 
+
+The disadvantage to using the traditional RBAC model is that when employees add new resources, you must update policies to allow access to those resources. 
+
+Here is an example of such policy:
+
+```json
+{ "Version": "2012-10-17", 
+  "Statement": [ 
+    { "Effect": "Allow", 
+      "Action": "s3:ListBucket", 
+      "Resource": "arn:aws:s3:::example_bucket", 
+      "Condition": { 
+        "StringEquals": { "aws:PrincipalOrgID": "o-12345", "aws:PrincipalTag/Department": "Finance" } } } 
+    ]
+}
+```
+
+[ABAC policy examples.](https://docs.aws.amazon.com/verifiedpermissions/latest/userguide/policies_examples-abac.html)
+
+sts:TagSession permission allows an IAM user or role to pass session tags when assuming a role or federating users. Session tags are custom attributes that get attached to the resulting temporary security credentials
+
+Session tags are key-value pairs that can be used to organize or track assumed role sessions.
+
+Session tags get returned with the AssumeRole response and can then be referenced in IAM policies or AWS Config rules. This allows conditional access based on session attributes.
+The maximum number of session tags per response is 10, with a maximum key and value size of 128 bytes each.
+
+
+
 #### Some important articles
 
 * [Learn to create a user, a role, using the console](https://docs.aws.amazon.com/IAM/latest/UserGuide/getting-started.html).

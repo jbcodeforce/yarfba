@@ -8,60 +8,60 @@ The security demonstrations are aimed to get hands-on experience around:
 * Deploying encryption strategies for data at rest and data in transit
 * Developing a strategy for centralized security event notifications and auditing
 
-## Defined users and groups with IAM
+## Basic demonstrations
 
-See [summary on IAM](../../infra/security.md#iam-identity-and-access-management), better to define user and do not use root user. User can be created using CloudFormation or CDK. See 
-[cdk samples](../../coding/cdk.md#some-how-to) and [the repository to demonstrate remote service access from k8s.](https://github.com/jbcodeforce/aws-remote-svc-access-from-k8s/tree/main/cdk).
+### Define users and groups with IAM
 
-## IAM Role to trust a user to access AWS Service like EC2
+See [summary on IAM](../../infra/security.md#iam-identity-and-access-management). Better to define user and do not use root user. User can be created using CloudFormation or CDK. See 
+[cdk samples](../../coding/cdk.md#some-how-to) and [the aws-remote-svc-access-from-k8s repository to demonstrate remote service access from k8s.](https://github.com/jbcodeforce/aws-remote-svc-access-from-k8s/tree/main/cdk).
+
+### IAM Role to trust a user to access AWS Service like EC2
 
 A user has no access to any of AWS services, but can login to the AWS console. The demo aims to show how to add an IAM role, trusting an IAM user, and defining a policy to get full access to EC2 service.  When user switches to the new role in the AWS console, the security context changes.
 
-### Manual demonstration
+???- info "Manual demonstration"
+    1. Create a user in IAM (named Julie): authorize access to the AWS console, with custom password, and no other permissions.
 
-1. Create an IAM user (named Julie)
-1. Create a user in IAM: authorize access to the AWS console, with custom password, and no other permissions.
+        ![](./images/create-user.png){ width=700 }
 
-    ![](./images/create-user.png){ width=700 }
+    1. Add a role named `EC2FullAccessRole`, with a trusted relationship for the created user as principal: `iam:user...`:
 
-1. Add a role named `EC2FullAccessRole`, with a trusted relationship, with the created user as principal: `iam:user...`:
+        ```json
+        {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Principal": {
+                        "AWS": "arn:aws:iam::4....:user/Julie"
+                    },
+                    "Action": "sts:AssumeRole"
+                }
+            ]
+        }
+        ```
 
-    ```json
-    {
-        "Version": "2012-10-17",
-        "Statement": [
-            {
-                "Effect": "Allow",
-                "Principal": {
-                    "AWS": "arn:aws:iam::4....:user/Julie"
-                },
-                "Action": "sts:AssumeRole"
-            }
-        ]
-    }
-    ```
+        Add the `permission` for the user to get EC2 full access via the managed policy: AmazonEC2FullAccess
 
-    Add the `permission` for the user to get EC2 full access via the managed policy: AmazonEC2FullAccess
+        ![](./images/iam-role.png){ width=700 }
 
-    ![](./images/iam-role.png){ width=700 }
+        So now the user will be able to assume the role.
 
-    So now the user will be able to assume the role.
+    1. Login in a private web browser session, using IAM user option on the AWS account the user belongs to, and the newly created user.
 
-1. Login in a private web browser session, using IAM user option on the AWS account the user belongs to, and the newly created user.
+        ![](./images/aws-login.png){ width=700 }
 
-    ![](./images/aws-login.png){ width=700 }
+    1. Go to the EC2 service, we should get API errors like below:
 
-1. Go to the EC2 service, we should get API errors like below:
+        ![](./images/ec2-no-access.png){ width=700 }
 
-    ![](./images/ec2-no-access.png){ width=700 }
+    1. Switch Role from the AWS console, user top right menu, and select the role:
 
-1. Switch Role from the AWS console, user top right menu, and select the role:
+        ![](./images/switch-role.png){ width=700 }
 
-    ![](./images/switch-role.png){ width=700 }
+    1. Should now see the EC2 console without any error.
 
-1. Should now see the EC2 console without any error.
-
-    ![](./images/ec2-console.png){ width=700 }
+        ![](./images/ec2-console.png){ width=700 }
 
 ### Using CDK to create users and policies
 
@@ -92,17 +92,34 @@ The cdk in [labs/cdk/iam-user](https://github.com/jbcodeforce/aws-studies/tree/m
     * `cdk synth` and `cdk deploy`
     * Execute the same demo to login Julie user and access to EC2.
 
-## [IAM tutorials](https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorials.html)
+## Advanced Demonstrations
 
-The second tutorial is to create a role to establish trust with another account and define what actions trusted entities can take. Then, modify a user group policy to control which IAM users can access the role. As a result, developers from the Development account can make updates to the productionapp bucket in the Production account by using temporary credentials.
+See the product [IAM tutorials](https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorials.html) and [IAM workshops](https://internal.workshops.aws/card/iam) like [Refining IAM Permissions Like A Pro](https://catalog.workshops.aws/refining-iam-permissions-like-a-pro/en-US).
 
-The [attribute based access control](https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_attribute-based-access-control.html) uses tags to control access to resources for 2 projects, using different groups of user (dev, qas). See the [labs/security/iam folder](https://github.com/jbcodeforce/aws-studies/tree/main/labs/security/iam/abqc) for cdk to do the tutorial.
+### Cross Accounts authorization
 
-## Cross Accounts authorization
+The IAM tutorial, [*Delegate access across AWS accounts using IAM roles*](https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_cross-account-with-roles.html), demonstrates how to create a role to establish trust with another account and define what actions trusted entities can take:
+
+1. Create a S3 bucket in Production account
+1. Create a policy to control access to the S3 bucker
+1. Create a role in Production account with this policy attached and as a trusted relationships the Account A
+1. Create a policy in the Account A for user to assume the role defined in Production account
+
+See the SDK code to do the same thing but for a role so an application can act on S3 bucket on another account in [labs/security/sts-demo](https://github.com/jbcodeforce/yarfba/tree/main/labs/security/sts-demo)
+
+
+ Then, modify a user group policy to control which IAM users can access the role. As a result, developers from the Development account can make updates to the production bucket in the Production account by using temporary credentials.
+
+
+### Attribute-based access control
+
+The [attribute based access control](https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_attribute-based-access-control.html) uses tags to control access to resources for 2 projects, using different groups of user (dev, qas). See the [labs/security/iam folder](https://github.com/jbcodeforce/aws-studies/tree/main/labs/security/iam/abqc) for cdk to do the same tutorial.
+
+### Cross Accounts authorization
 
 This is a common use case, where a main account A can read DynamoDB table and put message to SQS queue in a second account B, the owner of the queue.
 
-* Create a second account. It has console access using AdministratorAccess policy
+* Create a second account.
 * Create a SQS and define an Amazon SQS policy that specifies both accounts as Principal
 
     ```json
