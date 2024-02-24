@@ -37,8 +37,8 @@ Each pillar has questions, context and best practices.
 ## Design Principles
 
 * **Stop guessing your capacity needs**: use as much or as little capacity as you need, and scale up and down automatically.
-* **Test systems at production scale**, then decommission the resources. 
-* **Automate to make architectural experimentation easier**.
+* **Test systems at production scale**, then decommission the development resources.
+* **Automate to make architectural experimentation easier**, using infrastructure as code.
 * **Allow for evolutionary architectures**: the capability to automate and test on demand lowers the risk of impact from design changes. This allows systems to evolve over time so that businesses can take advantage of innovations as a standard practice.
 * **Drive architectures using data**: In the cloud, you can collect data on how your architectural choices affect the behavior of your workload. This lets you make fact-based decisions on how to improve your workload.
 * **Improve through game days** to simulate events in production. This will help you understand where improvements can be made and can help develop organizational experience in dealing with events.

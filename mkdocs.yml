@@ -21,7 +21,9 @@ nav:
       - Resiliency: sa/resiliency.md
       - Conduct Design session: templ/index.md
 
-  - Analytics: analytics/index.md
+  - Analytics: 
+      - Introduction: analytics/index.md
+      - EMR: analytics/emr.md
   - Data:
       - Introduction: data/index.md
       - RDS-Aurora: data/rds.md

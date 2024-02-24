@@ -22,7 +22,7 @@ Upload the source code, and Lambda takes care of everything required to run and 
     * An **execution environment** manages the processes and resources that are required to run the function. 
     * **Configuration** includes compute resources, execution timeout, IAM roles (lambda_basic_execution)...
 
-### Execution environment
+### Lambda Execution environment
 
 * The execution environment follows the [life cycle](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtime-environment.html) as defined below (time goes from left to right):
 
@@ -48,7 +48,7 @@ Upload the source code, and Lambda takes care of everything required to run and 
     ![](./images/req-rep-lambda.png){ width=800 }
 
 
-* There is one runtime that matches the programming language (Java, Node.js, C#, Go, or Python. ).
+* There is at least one runtime which matches the programming language (Java, Node.js, C#, Go, or Python).
 * To reuse code in more than one function, consider creating a Layer and deploying it. A layer is a ZIP archive that contains libraries, a custom runtime, or other dependencies.
 * Lambda supports versioning and developer can maintain one or more versions of the lambda function. We can reduce the risk of deploying a new version by configuring the alias to send most of the traffic to the existing version, and only a small percentage of traffic to the new version. Below  is an example of creating one Alias to version 1 and a routing config with Weight at 30% to version 2. Alias enables promoting new lambda function version to production and if we need to rollback a function, we can simply update the alias to point to the desired version. Event source needs to use Alias ARN for invoking the lambda function.
 
@@ -144,15 +144,14 @@ Edge can be used for:
 
 ## Security
 
-For AWS Lambda, AWS manages the underlying infrastructure and foundation services, the operating system, and the application platform. Developer need to ensure code, libraries, configuration, IAM are well set. Some security considerations:
+As a managed service, AWS manages the underlying infrastructure and foundation services, the operating system, and the application platform. Developers need to ensure code, libraries, configuration, IAM are well set. Some security considerations:
 
 * Data privacy with encryption at rest with customer managed Key, encryption in transit, access control.
 * Function runtime environment variables are secured by encryption using a Lambda-managed KMS key (named `aws/lambda`). The `CreateFunction` API or `UpdateFunctionConfiguration` may use KMS Keys.
 * AWS X-Ray also encrypts data by default.
 * TLS1.2 for all public APIs.
 * Run on EC2 with Nitro System for better security isolation.
-* Code releases go through security review and penetration testing.
-* It provides a code signing feature to ensure only trusted code is run in the Lambda function.
+* Code releases go through security review and penetration testing. It provides a code signing feature to ensure only trusted code is run in the Lambda function.
 
 * Lambda also supports function URLs, a built-in HTTPS endpoint for invoking functions. No need for API Gateway and ALB.
 * Each Lambda exec environment includes a writeable /tmp folder: files written within it, remain for the lifetime of the execution environment.

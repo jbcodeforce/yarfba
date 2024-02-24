@@ -7,7 +7,7 @@ AWS SAM is an extension of AWS CloudFormation with a simpler syntax for configur
 SAM includes two parts:
 
 1. SAM template specification: It is an extension on top of AWS CloudFormation.
-1. A CLI to create new project, buid and deploy, perform local debugging and testing, configure pipeline.
+1. A CLI to create new project, build and deploy, perform local debugging and testing, configure pipeline.
 
 Here is an example of definition of a serverless app including: AWS Lambda, API gateway with HTTP api, database in DynamoDB and then IAM permissions for those services to work together.
 
@@ -43,7 +43,7 @@ See [SAM templates here](https://github.com/aws/aws-sam-cli-app-templates)
 
 ## Value propositions
 
-* Define the application infrastructure code quickly, using less code.
+* Define the application infrastructure code as quickly, using less code.
 * Manage the serverless applications through their entire development lifecycle.
 * Quickly provision permissions between resources with AWS SAM connectors.
 * Continuously sync local changes to the cloud as we develop.
@@ -63,7 +63,7 @@ sam --version
 ```
 
 * [Serverlessland pattern collection.](https://serverlessland.com/patterns?framework=SAM)
-* [Complete SAM Workshop.](https://catalog.workshops.aws/complete-aws-sam/en-US)
+* [A Complete SAM Workshop.](https://catalog.workshops.aws/complete-aws-sam/en-US)
 * [Java samples with SAM CLI.](https://github.com/aws-samples/aws-sam-cli-java-examples)
 
 ### Summary of application development with SAM
@@ -192,8 +192,6 @@ The following steps are a quick summary of the documentation tutorial to get a L
 
 For the function section of the template, see the [lambda reference](https://github.com/aws/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction).
 
-
-
 ## SAM Pipelines
 
 AWS SAM Pipelines makes it easier to create CI/CD [pipelines.](https://aws.amazon.com/blogs/compute/introducing-aws-sam-pipelines-automatically-generate-deployment-pipelines-for-serverless-applications/)
@@ -231,11 +229,11 @@ A `.gitlab-ci.yml` pipeline file is generated. The file contains a number of env
 
 The Cloud Formation template deploy two stacks and all the needed elements for the CI/CD in dev and prod envs. Going to Code Pipeline console to see the create pipeline.
 
-To create a github and gitaction pipeline see [this doc.](https://catalog.workshops.aws/complete-aws-sam/en-US/module-4-cicd/module-4-cicd-gh).
+To create a github and git action pipeline see [this doc.](https://catalog.workshops.aws/complete-aws-sam/en-US/module-4-cicd/module-4-cicd-gh).
 
 ### Canary deployments
 
-Technicque to slowly rolling out the changes to a small subset of users before rolling it out to the entire customer base.
+Technique to slowly rolling out the changes to a small subset of users before rolling it out to the entire customer base.
 
 AWS Lambda allows you to publish multiple versions of the same function. Each version has its own code and associated dependencies, as well as its own function settings.
 

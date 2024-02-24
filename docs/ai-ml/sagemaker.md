@@ -6,15 +6,15 @@ Fully managed machine learning service, for developers and data scientists, to d
 
 The figure below explains how SageMaker works for model training, by using S3 bucket as source of data (Ground Truth), ECR Container registry to get predefined image, models are persisted in S3 bucket output folder:
 
-![](./diagrams/sagemaker-training.drawio.png){ width=800 }
+![](./diagrams/sagemaker-training.drawio.png){ width=700 }
 
 Amazon SageMaker always uses Docker containers when running scripts, training algorithms, and deploying models. We can create a training job with the SageMaker console, AWS CLI, Python notebook,  or using the SageMaker Python SDK.
 
-After we trained our machine learning model, we can deploy it using Amazon SageMaker deployment, depending of the following scenarios:
+After we trained our machine learning model, we can deploy it using Amazon SageMaker deployment, using one of the following scenarios:
 
 * One prediction at a time, use real-time inference hosting service: limit to 6MB and t<60s 
 
-    ![](./diagrams/sagemaker-hosting.drawio.png){ width=800 }
+    ![](./diagrams/sagemaker-hosting.drawio.png){ width=700 }
 
 * Workloads that tolerate cold start can use [serverless inference](https://docs.aws.amazon.com/sagemaker/latest/dg/serverless-endpoints.html). Pay for only when used.
 * For large payload > 1GB, long processing, use batch processing. 
@@ -22,19 +22,43 @@ After we trained our machine learning model, we can deploy it using Amazon SageM
 
 See [inference deployment options](https://docs.aws.amazon.com/sagemaker/latest/dg/deploy-model.html/#deploy-model-options) for details.
 
-## Benefits
+### Benefits
 
 * Labelling raw data and active learning
 * Fully managed notebook
 * Models are in OCI images
-* **Amazon SageMaker Clarify** helps improve your machine learning (ML) models by detecting potential bias and by explaining the predictions that models make.
-* [SageMaker JumpStart](https://docs.aws.amazon.com/sagemaker/latest/dg/studio-jumpstart.html)  provides pretrained, open-source models for a wide range of problem types to help you get started with machine learning. For LLM it includes **LLaMa-2-7b, BLOOM 176B, FLAN-T5 XL, or GPT-J 6B**.
+* **Amazon SageMaker Clarify** helps improve the machine learning (ML) models by detecting potential bias and by explaining the predictions that models make.
+* [SageMaker JumpStart](#jumpstart)  provides pretrained, open-source models for a wide range of problem types to help you get started with machine learning. For LLMs, it includes **LLaMa-2-7b, BLOOM 176B, FLAN-T5 XL, or GPT-J 6B**...
 * Isolate team in a security domain which includes EBS, collaborative editing capabilities, computes, sharing spaces.
-* Canvas is used to integrate with data source connectors, includes reeady to use models and do ETL.
+* Canvas is used to integrate with data source connectors, includes ready to use models and do ETL.
 * Model endpoint can be called asynchronously with data from S3.
 * Can use Sagemaker docker [image for deep learning](https://docs.aws.amazon.com/sagemaker/latest/dg/pre-built-containers-frameworks-deep-learning.html) with different framework like TensorFlow, PyTorch, ...
 
-## Pricing
+### Key Term Definitions
+
+| Term | Definition |
+| --- | --- |
+| **Inferentia** | AWS custom chip which is designed for ultra-fast low cost ML inference. New library releases in Q2 2023 have made LLM compilation easier |
+| **SageMaker Distributed Training** | SageMaker provides distributed training libraries and supports various distributed training options for deep learning tasks such as computer vision (CV) and natural language processing (NLP). With SageMaker’s distributed training libraries, you can run highly scalable and cost-effective custom data parallel and model parallel deep learning training jobs. |
+| **SageMaker Jumpstart Foundation Models** | SageMaker JumpStart provides pretrained, open-source models for a wide range of problem types to help you get started with machine learning. You can incrementally train and tune these models before deployment. JumpStart also provides solution templates that set up infrastructure for common use cases, and executable example notebooks for machine learning with SageMaker. |
+| **Titan** | A textual foundation model developed internally to Amazon. First renditions is text to text and text to vector models. These models are zero-shot instructor models and can solve tasks like summarization, question answer, language generation, and advanced search. |
+| **Trainium** | AWS custom chip which is designed for ultra-fast low cost ML training and inference.|
+
+
+### Components
+
+* [Canvas](https://docs.aws.amazon.com/sagemaker/latest/dg/canvas.html): generate prediction with a no-code approach. With Canvas, we can chat with popular large language models (LLMs), access Ready-to-use models, or build a custom model trained on new data. See [getting started](https://docs.aws.amazon.com/sagemaker/latest/dg/canvas-getting-started.html).
+* [Autopilot]()
+* [Governance]()
+* [Hpyerpod Clusters]()
+* [Ground Truth]()
+* [Notebook]()
+* [Training](https://docs.aws.amazon.com/sagemaker/latest/dg/train-model.html)
+* [Inference]()
+* [Augmented AI]()
+
+
+### Pricing
 
 [Pricing information](https://aws.amazon.com/sagemaker/pricing/).
 
@@ -43,11 +67,13 @@ See [inference deployment options](https://docs.aws.amazon.com/sagemaker/latest/
 A single, web-based IDE to do all the ML development tasks. It supports the classical ML development steps of:
 
 * Prepare Data.
-* Build Model using Notbook.
+* Build Model using Notebook.
 * Train and tune model.
 * Deploy and manage.
 
 To use SageMaker Studio, an administrator needs to get a Domain sets up (see steps in [SM immersion day](https://catalog.us-east-1.prod.workshops.aws/workshops/63069e26-921c-4ce1-9cc7-dd882ff62575/en-US/prerequisites/option2)).
+
+### Domain
 
 A  [**Domain**](https://docs.aws.amazon.com/sagemaker/latest/dg/studio-entity-status.html) consists of an associated Amazon Elastic File System (Amazon EFS) volume; a list of authorized users; and a variety of security, application, security policies, S3 bucket, and Amazon Virtual Private Cloud configurations.  Each user in a domain receives a personal and private home directory within the EFS for their own notebooks, Git repositories, and data files. Within a domain data scientists and developers can co-work on the same data and models.
 
@@ -55,66 +81,66 @@ A  [**Domain**](https://docs.aws.amazon.com/sagemaker/latest/dg/studio-entity-st
 
 After creating a Domain, we got a User Portal to access the environment. Members given access to Studio have a unique sign-in URL that directly opens Studio, and they sign in with their IAM Identity Center credentials (SSO).
 
-Once a user from Identity Service is assigned to a Domain, he can start Studio and reach the home page:
+Once a user from Identity Service is assigned to a Domain, she/he can start Studio:
 
 ![](./images/SageMakerStudio.png){ width=800 }
 
-* A user needs to create an executable environment, for example a Data Science one, with all the needed libraries to use Jupyter notebook with AWS SDK boto3. In the environment, we can use Notebook, console or terminal. The environment is a EC2 machine (t3.medium).
+* A user needs to create an executable environment, for example a Data Science one, with all the needed libraries to use Jupyter notebook with AWS SDK boto3. The environment is a EC2 machine (t3.medium).
 
-* We can use [CDK to create a Studio with scripts to perform automated tasks at setup time]() from [this blog](https://aws.amazon.com/blogs/machine-learning/use-the-aws-cdk-to-deploy-amazon-sagemaker-studio-lifecycle-configurations/) and [code repo.](https://github.com/aws-samples/aws-cdk-sagemaker-studio-lifecycle-config)
+* We can use [CDK to create a Studio with scripts to perform automated tasks at setup time](https://aws.amazon.com/blogs/machine-learning/use-the-aws-cdk-to-deploy-amazon-sagemaker-studio-lifecycle-configurations/) and [code repo.](https://github.com/aws-samples/aws-cdk-sagemaker-studio-lifecycle-config)
 
-## A [Simple tutorial](https://aws.amazon.com/getting-started/hands-on/build-train-deploy-machine-learning-model-sagemaker/?ref=gsrchandson)
+???- info "A [Simple tutorial](https://aws.amazon.com/getting-started/hands-on/build-train-deploy-machine-learning-model-sagemaker/?ref=gsrchandson)"
 
-The classical model development and deployment steps are:
+    The classical model development and deployment steps are:
 
-1. Be sure to have an IAM Role created so SageMaker Studio running in a EC2 instance can access remote AWS services, like S3...
-1. Inside Studio, create a SageMaker notebook instance - Use Jupyter notebook with Conda and Python3
-1. Prepare the data: create S3 bucket, load csv source as training data set, build train and test data sets by splitting the source data.
-1. Train the model to learn from the data. 
+    1. Be sure to have an IAM Role created so SageMaker Studio running in a EC2 instance can access remote AWS services, like S3...
+    1. Inside Studio, create a SageMaker notebook instance - Use Jupyter notebook with Conda and Python3
+    1. Prepare the data: create S3 bucket, load csv source as training data set, build train and test data sets by splitting the source data.
+    1. Train the model to learn from the data, using session to cluster hosts:
 
-    ```python
-    import sagemaker
-    # Use SageMaker estimator 
-    sess = sagemaker.Session()
-    xgb = sagemaker.estimator.Estimator(xgboost_container, role, instance_count=1, 
-                    instance_type='ml.m4.xlarge',
-                    output_path='s3://{}/{}/output'.format(bucket_name, prefix),
-                    sagemaker_session=sess)
-    xgb.set_hyperparameters(max_depth=5, eta=0.2, gamma=4, min_child_weight=6, subsample=0.8, silent=0,
-                objective='binary:logistic', num_round=100)
-    # fit on the training set
-    xgb.fit({'train': s3_input_train})
-    ```
+        ```python
+        import sagemaker
+        # Use SageMaker estimator 
+        sess = sagemaker.Session()
+        xgb = sagemaker.estimator.Estimator(xgboost_container, role, instance_count=1, 
+                        instance_type='ml.m4.xlarge',
+                        output_path='s3://{}/{}/output'.format(bucket_name, prefix),
+                        sagemaker_session=sess)
+        xgb.set_hyperparameters(max_depth=5, eta=0.2, gamma=4, min_child_weight=6, subsample=0.8, silent=0,
+                    objective='binary:logistic', num_round=100)
+        # fit on the training set
+        xgb.fit({'train': s3_input_train})
+        ```
 
-1. Deploy the model:
+    1. Deploy the model:
 
-    ```python
-    xgb_predictor = xgb.deploy(initial_instance_count=1,instance_type='ml.m4.xlarge')
-    ```
+        ```python
+        xgb_predictor = xgb.deploy(initial_instance_count=1,instance_type='ml.m4.xlarge')
+        ```
 
-1. Evaluate a ML model's performance
+    1. Evaluate a ML model's performance
 
-    ```python
-    from sagemaker.serializers import CSVSerializer
+        ```python
+        from sagemaker.serializers import CSVSerializer
 
-    test_data_array = test_data.drop(['y_no', 'y_yes'], axis=1).values #load the data into an array
-    xgb_predictor.serializer = CSVSerializer() # set the serializer type
-    predictions = xgb_predictor.predict(test_data_array).decode('utf-8') # predict!
-    predictions_array = np.fromstring(predictions[1:], sep=',') # and turn the prediction into an array
-    print(predictions_array.shape)
-    ```
+        test_data_array = test_data.drop(['y_no', 'y_yes'], axis=1).values #load the data into an array
+        xgb_predictor.serializer = CSVSerializer() # set the serializer type
+        predictions = xgb_predictor.predict(test_data_array).decode('utf-8') # predict!
+        predictions_array = np.fromstring(predictions[1:], sep=',') # and turn the prediction into an array
+        print(predictions_array.shape)
+        ```
 
-    It generates a confusion matrix like:
+        It generates a confusion matrix like:
 
-    ```sh
-    Overall Classification Rate: 89.5%
+        ```sh
+        Overall Classification Rate: 89.5%
 
-    Predicted      No Purchase    Purchase
-    Observed
-    No Purchase    90% (10769)    37% (167)
-    Purchase        10% (1133)     63% (288) 
+        Predicted      No Purchase    Purchase
+        Observed
+        No Purchase    90% (10769)    37% (167)
+        Purchase        10% (1133)     63% (288) 
 
-    ```
+        ```
 
 ## The ML process
 
@@ -204,68 +230,53 @@ We run Scikit-learn training scripts on SageMaker by creating SKLearn Estimators
 
 ## Jumpstart
 
-Amazon SageMaker JumpStart is a feature of Amazon SageMaker providing a set of foundation models, build-in algorithms and prebuilt ML solutions for common use cases that can be deployed readily in just a few steps. JumpStart is a ML hub with 400+ built-in algorithms with pretrained models including foundation models. The price is based on the resources used.
+[Amazon SageMaker JumpStart](https://docs.aws.amazon.com/sagemaker/latest/dg/studio-jumpstart.html) provides a set of foundation models, build-in algorithms and prebuilt ML solutions for common use cases that can be deployed readily in just a few steps. JumpStart is a ML hub with 400+ built-in algorithms with pre-trained models including foundation models. The price is based on the resources used.
 
-Consider Jumpstart when
+Consider Jumpstart when:
 
-* The best LLM for your task is not in Bedrock
-* The size of requests and/or request frequency of your use case makes Jumpstart more cost effective — Paying by the hour instead of the token.
-* The terms and conditions of Bedrock models don’t meet your use case.
-
-* Transformers are open source library from [Hugging Face](https://huggingface.co/docs/transformers/index) for deep learning, it provides APIs and tools to download state-of-the-art pre-trained models and further tune them to maximize performance.
-
-```sh
-pip install transformers
-```
-
-* Using JumpStart, we can perform inference on a pre-trained model, even without fine-tuning it first on a custom dataset. We can also fine tune a model on specific dataset. For question answer dataset, we need the question, the context including the answer, where to find the answer in the context.
+* The best LLM for the task is not in Bedrock
+* The size of requests and/or request frequency of the use case makes Jumpstart more cost effective — Paying by the hour instead of the token.
+* The terms and conditions of Bedrock models don’t meet the use case.
+* Using JumpStart, we can perform inference on a pre-trained model, even without fine-tuning it first on a custom dataset. We can also fine tune a model on specific dataset.
 * Deploying a model, differs by model and instance availability of the required instance type.
 
-* **Generate text with Prompt only approach**: The following code can be integrated into a Jupyter Notebook: it uses Google Flan T5 LLM, with dialog data sets from Hugging Face, transformers tokenizer, and a prompt to expect a summarization of the conversation between two humans:
+???- example "Generate text with Prompt only approach"
+    The following code can be integrated into a Jupyter Notebook: it uses Google Flan T5 LLM, with dialog data sets from Hugging Face, transformers tokenizer, and a prompt to expect a summarization of the conversation between two humans:
 
-```python
-from transformers import AutoTokenizer
-from transformers import AutoModelForSeq2SeqLM
-from datasets import load_dataset
-# Load a dialog data sets from Hugging Face
-huggingface_dataset_name = "knkarthick/dialogsum"
-dataset = load_dataset(huggingface_dataset_name)
+    ```python
+    from transformers import AutoTokenizer
+    from transformers import AutoModelForSeq2SeqLM
+    from datasets import load_dataset
+    # Load a dialog data sets from Hugging Face
+    huggingface_dataset_name = "knkarthick/dialogsum"
+    dataset = load_dataset(huggingface_dataset_name)
 
-model_checkpoint='google/flan-t5-base'
+    model_checkpoint='google/flan-t5-base'
 
-tokenizer = AutoTokenizer.from_pretrained(model_checkpoint, use_fast=True)
-# Instantiate one of the model classes of the library (with a sequence-to-sequence language modeling head) from a pretrained model.
-# Sequence-to-sequence models are best suited for tasks revolving around generating new sentences depending on a given input, such as summarization, translation, or generative question answering
-model = AutoModelForSeq2SeqLM.from_pretrained(model_checkpoint)
+    tokenizer = AutoTokenizer.from_pretrained(model_checkpoint, use_fast=True)
+    # Instantiate one of the model classes of the library (with a sequence-to-sequence language modeling head) from a pretrained model.
+    # Sequence-to-sequence models are best suited for tasks revolving around generating new sentences depending on a given input, such as summarization, translation, or generative question answering
+    model = AutoModelForSeq2SeqLM.from_pretrained(model_checkpoint)
 
-start_prompt = 'Summarize the following conversation.\n'
-end_prompt = '\n\nSummary: '
-dialogue = dataset['test'][example_indices[0]]['dialogue']
-summary = dataset['test'][example_indices[0]]['summary']
-prompt = f'{start_prompt}{dialogue}{end_prompt}'
+    start_prompt = 'Summarize the following conversation.\n'
+    end_prompt = '\n\nSummary: '
+    dialogue = dataset['test'][example_indices[0]]['dialogue']
+    summary = dataset['test'][example_indices[0]]['summary']
+    prompt = f'{start_prompt}{dialogue}{end_prompt}'
 
-inputs = tokenizer(prompt, return_tensors='pt')
-output = tokenizer.decode(
-    model.generate(
-        inputs["input_ids"], 
-        max_new_tokens=50,
-    )[0], 
-    skip_special_tokens=True
-)
-print(f'INPUT PROMPT:\n{prompt}\n')
-print(f'MODEL GENERATION:\n{output}\n')
-print(f'BASELINE SUMMARY:\n{summary}')
-```
+    inputs = tokenizer(prompt, return_tensors='pt')
+    output = tokenizer.decode(
+        model.generate(
+            inputs["input_ids"], 
+            max_new_tokens=50,
+        )[0], 
+        skip_special_tokens=True
+    )
+    print(f'INPUT PROMPT:\n{prompt}\n')
+    print(f'MODEL GENERATION:\n{output}\n')
+    print(f'BASELINE SUMMARY:\n{summary}')
+    ```
 
-## Key Term Definitions
-
-| Term | Definition |
-| --- | --- |
-| **Inferentia** | AWS custom chip which is designed for ultra-fast low cost ML inference. New library releases in Q2 2023 have made LLM compilation easier |
-| **SageMaker Distributed Training** | SageMaker provides distributed training libraries and supports various distributed training options for deep learning tasks such as computer vision (CV) and natural language processing (NLP). With SageMaker’s distributed training libraries, you can run highly scalable and cost-effective custom data parallel and model parallel deep learning training jobs. |
-| **SageMaker Jumpstart Foundation Models** | SageMaker JumpStart provides pretrained, open-source models for a wide range of problem types to help you get started with machine learning. You can incrementally train and tune these models before deployment. JumpStart also provides solution templates that set up infrastructure for common use cases, and executable example notebooks for machine learning with SageMaker. |
-| **Titan** | A textual foundation model developed internally to Amazon. First renditions is text to text and text to vector models. These models are zero-shot instructor models and can solve tasks like summarization, question answer, language generation, and advanced search. |
-| **Trainium** | AWS custom chip which is designed for ultra-fast low cost ML training and inference.|
 
 
 ## Deeper dive
@@ -273,7 +284,7 @@ print(f'BASELINE SUMMARY:\n{summary}')
 * [x] [Onboard to Amazon SageMaker Domain Using IAM Identity Center](https://docs.aws.amazon.com/sagemaker/latest/dg/onboard-sso-users.html) to define user in IAM-IC and then use Domain in SageMaker to authorize users to login via SSO.
 * [x] [Labs: Creating a scikit-learn Random Forest Classifier in AWS SageMaker](https://learn.acloud.guru/handson/1a4b7e56-0177-40a3-b03b-d6fb4457b092). Applied to company risk to churn demo in [this folder](https://github.com/jbcodeforce/big-data-tenant-analytics/tree/main/CompanyRisk).
 * [ ] [Using the SageMaker Python SDK](https://sagemaker.readthedocs.io/en/stable/overview.html#using-the-sagemaker-python-sdk).
-* [Examples of using SageMaker Python SDK](https://github.com/aws/amazon-sagemaker-examples/blob/main/sagemaker-python-sdk/).
+* [ ] [Examples of using SageMaker Python SDK](https://github.com/aws/amazon-sagemaker-examples/blob/main/sagemaker-python-sdk/).
 * [ ] [Amazon SageMaker Workshops](https://github.com/awslabs/amazon-sagemaker-workshop)
 * [ ] [SageMaker Immersion Day](https://catalog.us-east-1.prod.workshops.aws/workshops/63069e26-921c-4ce1-9cc7-dd882ff62575/en-US)
 * [gitHub Amazon SageMaker Examples](https://github.com/aws/amazon-sagemaker-examples) including Inference Recommender.
@@ -281,6 +292,7 @@ print(f'BASELINE SUMMARY:\n{summary}')
 * [x] [Add permissions to a Amazon SageMaker Studio account](https://aws.amazon.com/getting-started/hands-on/machine-learning-tutorial-set-up-sagemaker-studio-account-permissions/) when we need to enable access from Studio to SageMakerAPI using the IAM policies `AmazonSageMakerFullAccess` and `AWSCloudFormationFullAccess`. The lab is little bit old, so now in SageMaker we need to access users via Domain.
 * [MLOps deployment best practices for real-time inference model serving endpoints with Amazon SageMaker](https://aws.amazon.com/blogs/machine-learning/mlops-deployment-best-practices-for-real-time-inference-model-serving-endpoints-with-amazon-sagemaker/).
 * [ ] [Generative AI and Data Science on AWS](https://catalog.us-east-1.prod.workshops.aws/workshops/f772b430-37d0-4adc-ba65-2f3e229caa5c/en-US).
+* [ ] [Generative AI on Amazon SageMaker - Workshop](https://catalog.us-east-1.prod.workshops.aws/workshops/972fd252-36e5-4eed-8608-743e84957f8e/en-US): addresses SageMaker Quickstart solutions for text-text and text-image models, prompt engineering, fine-tuning Llama2, genAI use cases, coding Llama2.
 * [Personalized Movie Tag-Line Recommendations using Amazon Bedrock and Amazon Personalize](https://gitlab.aws.dev/ai-ml-specialist-sa/amer-aiml-sa/us-west/bedrock-samples/-/tree/main/samples/personalize-plus-bedrock).
 
 Please ensure that the role "arn:aws:iam::4...:role/service-role/AmazonSageMaker-ExecutionRole-20221207T113525" exists and that its trust relationship policy allows the action "sts:AssumeRole" for the service principal "sagemaker.amazonaws.com". Also ensure that the role has "s3:GetObject" permissions and that the object is located in us-west-2.
