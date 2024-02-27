@@ -68,11 +68,11 @@ sam --version
 
 ### Summary of application development with SAM
 
-The diagram below presents the classical app components that can be created, simply, with SAM:
+The diagram below presents the classical app components that can be created with SAM:
 
 ![](./diagrams/apigtw-lambda.drawio.png)
 
-The following steps are a quick summary of the documentation tutorial to get a Lambda in Python exposed with API in API Gateway.
+The following steps presents how to get a Lambda in Python exposed with API in API Gateway.
 
 * Create a SAM project
 
@@ -166,7 +166,7 @@ The following steps are a quick summary of the documentation tutorial to get a L
         -------------------------------------------------------------------------------------------------------------------------
         ```
 
-* [Optional] we can continuously synchronize local change to the cloud
+* [Optional] We can continuously synchronize local change to the cloud:
 
     ```sh
     # look at all changes
@@ -186,7 +186,7 @@ The following steps are a quick summary of the documentation tutorial to get a L
     ```
 
 
-* For building a CodePipeline using `sam cli` see [next section](#sam-build-codepipeline).
+* For building a CodePipeline using `sam cli` see [next section](#sam-pipelines).
 
 ### The sam template
 
@@ -235,7 +235,7 @@ To create a github and git action pipeline see [this doc.](https://catalog.works
 
 Technique to slowly rolling out the changes to a small subset of users before rolling it out to the entire customer base.
 
-AWS Lambda allows you to publish multiple versions of the same function. Each version has its own code and associated dependencies, as well as its own function settings.
+AWS Lambda allows us to publish multiple versions of the same function. Each version has its own code and associated dependencies, as well as its own function settings.
 
 ## Useful information
 
@@ -250,8 +250,9 @@ AWS Lambda allows you to publish multiple versions of the same function. Each ve
 ???+ question "Difference between SAM template and CloudFormation"
     SAM template is an abstraction above CloudFormation (`Transform: AWS::Serverless-2016-10-31`) but it reuses cloud formation templates for IaC in the "resources" section. It includes a "Global section" to define properties that are common to all your serverless functions and APIs. [Product doc](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-specification-template-anatomy.html)
 
-???- question "How to create and validate a SAM template"
+???- question "How to create and validate a SAM template?"
     Use CLI: 
+
     ```sh
     sam init -h
     sam init --runtime python3.9 --dependency-manager pip --app-template hello-world --name sam-app
@@ -288,10 +289,10 @@ AWS Lambda allows you to publish multiple versions of the same function. Each ve
     ```
 
 ???- question "Familiar with security best practices and how to leverage SAM policies when working with other services"
-    To invoke a Lambda, from external service we need to define [resource policies](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-templates.html). For example a Step function calling a Lambda
+    To invoke a Lambda, from external service, we need to define [resource policies](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-templates.html). For example a Step function calling a Lambda
     ```yaml
      ProcessFormStateMachineExpressSync:
-        Type: AWS::Serverless::StateMachine 
+        Type: AWS::Serverless::StateMachine
          Properties:
             Policies:  
                 - LambdaInvokePolicy:
@@ -317,9 +318,11 @@ AWS Lambda allows you to publish multiple versions of the same function. Each ve
     ```sh
     aws lambda publish-layer-version --layer-name my-layer --description "My layer" \
     --license-info "MIT" --zip-file fileb://layer.zip \
-    --compatible-runtimes python3.9 --compatible-architectures "arm64" "x86_64"
+    --compatible-runtimes python3.11 --compatible-architectures "arm64" "x86_64"
     ```
+
     A layer can be shared with other AWS account via command like:
+    
     ```sh
     aws lambda add-layer-version-permission --layer-name my-layer --statement-id xaccount --action lambda:GetLayerVersion  --principal 111122223333 --version-number 1 
     ```
@@ -339,8 +342,9 @@ AWS Lambda allows you to publish multiple versions of the same function. Each ve
         S3Bucket: my-bucket-region-123456789012
         S3Key: layer.zip
       CompatibleRuntimes:
-        - python3.9       
+        - python3.11
     ```
+
 ???- question "Implement AWS Step Functions workflow using SAM"
     There are multiple sources of template in the [serverless-patterns github repo](https://github.com/aws-samples/serverless-patterns/). New project can be created by using one of the Multiple Step function choices.
 
@@ -353,7 +357,7 @@ AWS Lambda allows you to publish multiple versions of the same function. Each ve
     * create CDK app: `cdk init app --language python`
     * Add lambda declaration in the CDK stack
     * Implement the lambda function
-    * Test locally using SAM CLI
+    * Test locally using SAM CLI and the Stack generated by CDK:
     ```sh
     cdk synth --no-staging
     sam local invoke MyFunction --no-event -t ./cdk.out/CdkSamExampleStack.template.json
@@ -376,8 +380,10 @@ AWS Lambda allows you to publish multiple versions of the same function. Each ve
     DeploymentPreference:
         Type: Canary10Percent5Minutes
     ``` 
-    One of other type is the linear strategy: `Linear10PercentEvery3Minutes`.
+
+    Another type is the linear strategy: `Linear10PercentEvery3Minutes`.
     When using pipeline and CodeDeploy, it is possible to see the canary release in action and CodeDeploy can be configured to roll-back if there is an issue coming from CloudWatch alarm.
+
 ???- question "Deep understanding of debugging and testing strategies with SAM"
      [AWS SAM Accelerate](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/accelerate.html) (`sam sync --watch`) enables developers to test their code quickly against production AWS services in the cloud and avoid `sam deploy` with CF deployment. 
 

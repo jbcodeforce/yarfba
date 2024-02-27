@@ -1,11 +1,14 @@
 # [AWS CloudFormation](https://docs.aws.amazon.com/cloudformation/index.html)
 
-Create and manage a collection of related AWS resources as code. The template defines AWS resources, called a stack, as Yaml or JSON file. Can be uploaded from a S3 bucket or from our local computer. 
+AWS CloudFormation helps developers to create and manage a collection of related AWS resources as code. The Yaml or JSON template, called a stack, defines AWS resources. Template may be uploaded from a S3 bucket or from our local computer. 
 
-The goal is to repeat infrastructure setup between regions or accounts. One of the greatest benefits of templates and CloudFormation is the ability to create a set of resources that work together to create an application or solution.
+The goal is to repeat infrastructure setup between regions or accounts. Template defines a set of resources that work together to create an application or solution.
 
-Stacks are defined in region, but StackSets helps to share stacks between accounts and regions.
-Stack can be created with other stacks (nested) or common resources can be managed using a separate stack. Other stacks can simply refer to the existing resources using cross-stack references. This allows independent teams to be responsible for their resources. When creating a template, you can indicate what resources are available for cross stack references by exporting those values (Export output field). Other stacks can use Fn::ImportValue function to import the value.
+Stacks are defined in region, but [StackSets](#stacksets) help to share stacks between accounts and regions.
+
+Stack can be created with other stacks (nested) or common resources can be managed using a separate stack. Nested stacks are not recommended as best practice, as they could be a large area of impact if something goes wrong (all templates will rollback). 
+
+Other stacks can simply refer to the existing resources using cross-stack references. This allows independent teams to be responsible for their resources. When creating a template, developer may indicate what resources are available for cross stack references by exporting those values (Export output field). Other stacks can use `Fn::ImportValue` function to import the value.
 
 To create a stack from AWS templates we can use CLI, API, the Console or start from one of the samples.
 
@@ -13,20 +16,20 @@ The classical steps are:
 
 1. Select a template
 1. Prepare any required items for the stack, considering input parameters for example.
-1. Create the stack, using CloudFormation console, or AWS [cloudformation CLI](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/cloudformation/index.html#cli-aws-cloudformation) like
+1. Create the stack, using CloudFormation console, or AWS [CloudFormation CLI](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/cloudformation/index.html#cli-aws-cloudformation) like
 
     ```sh
-    aws cloudformation create-stack --stack-name myteststack --template-body file://sampletemplate.json --parameters ParameterKey=KeyPairName,ParameterValue=TestKey
+    aws cloudformation create-stack --stack-name myteststack --template-body file://sampletemplate.yaml --parameters ParameterKey=KeyPairName,ParameterValue=TestKey
     ```
 
 1. Monitor the stack creation progress
 1. Use the stack resources
 1. Clean up.
 
-Once stack is created, `Change Sets` may be applied to update the running resources. It is like a summary of the proposed changes. There is also the `Drift` detection feature to identify configuration changes between live resources and template. 
+Once stack is created, `Change Sets` may be applied to update the running resources. It is like a summary of the proposed changes. There is also the [`Drift` detection](#drift) feature to identify configuration changes between live resources and template.
 It is possible to use a CloudFormation public registry, with 3nd party resources published in APN.
 
-Pay for what the resources use. 
+Pay for what the resources use.
 
 ## Get started
 
@@ -57,7 +60,7 @@ Resources:
 
 The KeyName property is a literal for an existing key name in the region where the stack is being created.
 
-We use the `Parameters` section to declare values that can be passed to the template when we create the stack.
+Use the `Parameters` section to declare values that can be passed to the template when we create the stack.
 
 ```yaml
 Parameters:      
@@ -117,6 +120,14 @@ Trusted accounts create, update, delete stack instances from the StackSets. An u
 ## Drift
 
 Evaluate all resources that may have changed by admin console, and that will be reversed back to cloud formation template settings.
+
+## Quotas and Limits
+
+There are quotas to consider per account, when authoring templates and creating stacks. 
+The relevant product documentation are [AWS CloudFormation endpoints and quotas](https://docs.aws.amazon.com/general/latest/gr/cfn.html) and [](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html).
+
+* The number of stack per account, per region is 2000 as a soft limit.
+* StackSet is limited to 1000 per account.
 
 ## More advanced topics
 

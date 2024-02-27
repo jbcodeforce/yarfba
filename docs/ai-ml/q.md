@@ -1,10 +1,19 @@
 # Amazon Q
 
+???+ Info
+    **Created:** Dec 2023 - Updated: 02/26/24. State: Draft
+
+## Introduction
+
 A [Generative AI assistant](https://aws.amazon.com/q/) for business with special access to company data and systems with built-in connectors. Amazon Q is built on Amazon Bedrock and uses multiple FMs to complete its tasks. It is built to be secure and private
 
 One specific deployment is Amazon Q in the AWS management console, or integrated in developer IDE with CodeWhisperer.
 
 It uses the context of the ongoing session to enhance its responses, it recalls past questions and answers. Context is linked to the session and the AWS console page.
+
+### Pricing
+
+* See [Pricing documentation](https://aws.amazon.com/q/pricing/)
 
 ## For developers
 
@@ -16,5 +25,4 @@ Amazon Q network troubleshooting, you can query reachability between two resourc
 
 ## Important links
 
-* [Pricing](https://aws.amazon.com/q/pricing/)
-* [Next Generation Developer Experience workshop.](https://catalog.us-east-1.prod.workshops.aws/workshops/140d775f-670f-4e22-96e0-545515e7b35f/en-US)
+* [ ] [Next Generation Developer Experience workshop.](https://catalog.us-east-1.prod.workshops.aws/workshops/140d775f-670f-4e22-96e0-545515e7b35f/en-US)
