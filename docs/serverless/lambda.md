@@ -339,11 +339,11 @@ by bin(5min)
 It is common to have a function that needs libraries not in the standard Python 3.x environment. The approach is to use a zip file as source of the dependencies. The process to build such zip can be summarized as:
 
 * `lambda` is the folder with code and future dependencies. It has a `requirements.txt` file to define dependencies.
-* do a `pip install --target ./package -r requirements.txt`
+* do a `pip install --target ./python/lib/ -r requirements.txt`
 * zip the content of the package directory in a zip in the lambda folder
 
     ```sh
-    cd package
+    cd python
     zip -r ../lambda-layer.zip .
     ```
 
