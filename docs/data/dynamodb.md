@@ -50,6 +50,24 @@ Developer can change the KMS key for a table at any time, either in the DynamoDB
 
 All the data in DynamoDB is encrypted in transit. By default, communications to and from DynamoDB use the HTTPS protocol. Data in the application, needs to be encrypted before sending it to Dynamodb using client side encryption. If you store sensitive or confidential data in DynamoDB, consider including client-side encryption in your security plan. [See the What is the AWS Database Encryption SDK  product documentation.](https://docs.aws.amazon.com/database-encryption-sdk/latest/devguide/what-is-database-encryption-sdk.html)
 
+Below is an example of approach using a KMS AWS managed key, knowing its arn in KMS:
+
+```python
+kms = boto3.client('kms')
+
+def encrypt(text_to_encrypt):
+    return kms.encrypt(
+        KeyId=key_arn, 
+        Plaintext=text_to_encrypt
+    )['CiphertextBlob']
+
+item['ssn']= encrypt(item['ssn']) 
+dynamodb.put_item(
+  TableName='MyTable',
+  Item=item
+)
+```
+
 Attention, with customer managed keys, deletion of the key, will make the tables not accessible. You cannot use a customer managed key with DynamoDB Accelerator (DAX) clusters.
 
 See also this [important usage note](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/encryption.usagenotes.html).
@@ -68,7 +86,9 @@ aws dynamodb create-table --table-name Orders \
 
 See [AWS dynamodb cli cheat sheet](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/CheatSheet.html)
 
-Create with Python SDK:
+### SDK
+
+Create Table with Python SDK:
 
 ```python
 import boto3
@@ -104,15 +124,32 @@ else:
     print(f"Created table {table}")
 ```
 
-See also [the examples for CDK](https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_dynamodb/README.html).
+* Transactional write with [TransactWriteItems API](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_TransactWriteItems.html)
 
-### [PartiSQL](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-reference.html)
+```python
+dynamodb = boto3.client('dynamodb') 
+# prepare data
+items = [
+  {
+    'Put': {
+      'TableName': table,  
+      'Item': {
+        'Id': {'N': '123'}, 
+        'Name': {'S': 'Item 1'}
+      }
+    }
+  },...
 
-A SQL-compatible query language, to select, insert, update, and delete data in Amazon DynamoDB.
+try:
+  response = dynamodb.transact_write_items(
+    TransactItems=items,
+    ClientRequestToken="unique_idempotency_id"
+  )
+
+except ClientError as e:
+```
 
 ### CDK 
-
-Before you can use the AWS SDKs with DynamoDB, you must get an AWS access key ID and secret access key.
 
 Create a dynamodb instance with CDK:
 
@@ -135,10 +172,20 @@ class CdkStack(Stack):
         )
 ```
 
+See also [the examples for CDK](https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_dynamodb/README.html).
+
+
+
+
+### [PartiSQL](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-reference.html)
+
+A SQL-compatible query language, to select, insert, update, and delete data in Amazon DynamoDB.
+
 
 ### Other coding pattern
 
 * [Using quarkus, docker image for dynamodb, ](https://quarkus.pro/guides/dynamodb.html): Add dynamodb extension, and do data transformation between item and the business entity managed by the REST resource.
+* For client application, there is this [nice tutorial from Quarkus](https://docs.quarkiverse.io/quarkus-amazon-services/dev/amazon-dynamodb.html).
 
 ## DynamoDB Accelerator - DAX
 
