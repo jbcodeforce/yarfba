@@ -1,18 +1,18 @@
 # [Route 53](https://aws.amazon.com/route53/features/)
 
-A highly available, scalable, fully managed, and authoritative (we can update public DNS records) DNS. It is also a Domain Registra and a health checking services to route traffic to healthy endpoints. It supports a lot of routing types to respond to DNS query by taking into account % of traffic, latency, healthchecks...
+A highly available, scalable, fully managed, and authoritative (we can update public DNS records) DNS. It is also a Domain Registra and a health checking services to route traffic to healthy endpoints. It supports a lot of routing types to respond to DNS query by taking into account % of traffic, latency, health checks...
 
 This is a global WW service, which is globally distributed anycast network (networking and routing technology to get DNS query answered from the most optimal server) of DNS servers around the world.
 
 It uses the concept of `hosted zone` which is a "container" that holds information about how we want to route traffic for a domain or subdomain. The zone can be **public** (internet facing) or **private** (inside a VPC). All resource record sets within a hosted zone must have the hosted zone’s domain name as a suffix. Need a DNS domain for that.  Each Amazon Route 53 hosted zone is served by its own set of virtual DNS servers.
 
-A domain is at least 12$ a year and Route 53 fees is $0.5 per month per hosted zone. See [Pricing page](https://aws.amazon.com/route53/pricing/).
+A domain is at least 12$ a year and Route 53 fees is $0.5 per month per hosted zone. See [Pricing page](https://aws.amazon.com/route53/pricing/), but users pay as they go and only for what it is used: monthly charge for each hosted zone managed, charges for every DNS query answered by the Route 53.
 
 ## DNS
 
-DNS is a collection of rules and records which helps client apps understand how to reach a server through URLs. Here is a quick figure to summarize the process, which in fact should also has the root server (for the `.com`... resolution) and TLD server (for `amazon` or `google`). The SLD server is the one presented in the figure.
+DNS is a collection of rules and records which helps client apps understand how to reach a server through URLs. Below figure presents the DNS name resolution process, which in fact should also has the root server (for the `.com`... resolution) and TLD server (for `amazon` or `google`). The SLD server is the one presented in the figure.
 
- ![7](./images/dns.png)
+ ![7](./images/dns.png){ width=600 }
 
 ### [Route 53 FAQs](https://aws.amazon.com/route53/faqs/)
 
@@ -78,7 +78,7 @@ Eight routing types:
 1. A **simple** routing policy to get an IP @ from a single resource (still can specify multiple IP@ to be returned in the response, and the client will pick one of the address randomly). There is no health check associated to this record.
 1. The **weighted** routing policy controls the % of the requests that go to specific endpoint. Can do blue-green traffic management. It can also help to split traffic between two regions. It can be associated with Health Checks
 1. The **latency** routing Policy redirects to the server that has the least latency close to the client. Latency is based on traffic between users to AWS Regions.
-1. **Health check** monitors the health and performance of the public resources and assesses DNS failure with automatic failover. We can have HTTP, TCP or HTTPS health checks. We can define from which region to run the health check. They are charged per HC / month. 15 Health checkers exist WW. Send every 30s. Need at least 18% health checkers reporting the endpoint is healthy. HTTP RC code 2xx or 3xx. It is recommended to have one HC per app deployment. It can also monitor latency. To assess private endpoint within a VPC, we need to add a CloudWatch metric and alarm, then create a Health Check to the alarm itself.
+1. **Health check** monitors the health and performance of the public resources and assesses DNS failure with automatic failover. We can have HTTP, TCP or HTTPS health checks. We can define from which region to run the health check. They are charged per HC / month. 15 Health checkers exist WW. Send every 30s. Need at least 18% health checkers to report the endpoint is healthy. HTTP RC code 2xx or 3xx. It is recommended to have one HC per app deployment. It can also monitor latency. To assess private endpoint within a VPC, we need to add a CloudWatch metric and alarm, then create a Health Check to the alarm itself.
 1. The **failover** routing policy helps us to specify a record set to point to a primary and then a secondary instance for DR purpose.
 1. The **Geo Location** routing policy is based on user's location, and we may specify how the traffic from a given country should go to a specific IP@. Need to define a “default” policy in case there’s no match on location. It is interesting for website localization, restrict content distribution, load balancing,...
 1. **Geoproximity** takes into account the user and AWS resources locations. It also supports shifting more traffic to resources based on the defined bias. It is part of **Route 53 Traffic Flow** feature.
