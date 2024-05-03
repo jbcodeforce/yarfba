@@ -48,7 +48,7 @@ REST APIs and HTTP APIs are both RESTful API products. REST APIs support more fe
 
 API Gateway REST APIs use a synchronous request-response model. Always assess the type of endpoints:
 
-* **Edge-optimized** API Gateway will automatically configure a fully managed CloudFront distribution to provide lower latency access to the API. It also reduces TLS connection overhead, and it is designed for globally distributed clients
+* **Edge-optimized** API Gateway will automatically configure a fully managed CloudFront distribution to provide lower latency access to the API. It also reduces TLS connection overhead, and it is designed for globally distributed clients.
 * **Regional**, where client apps run in the same region as the API gateway, and most likely as the backends (Also for HTTP api).
 * **VPC or Private** to expose API from applications running within VPC.
 
@@ -76,7 +76,7 @@ A backend endpoint is also referred to as an integration endpoint and can be a L
 
 API Gateway uses selection expressions as a way to evaluate the request and response context and produce a key.
 
-After the connection is established, your client's JSON messages can be routed to invoke a specific backend service based on message content. When a client sends a message over its WebSocket connection, this results in a route request to the WebSocket API. The request will be matched to the route with the corresponding route key in API Gateway. 
+After the connection is established, the client's JSON messages can be routed to invoke a specific backend service based on message content. When a client sends a message over its WebSocket connection, this results in a route request to the WebSocket API. The request will be matched to the route with the corresponding route key in API Gateway. 
 
 ### API access
 
@@ -85,7 +85,23 @@ When it comes to granting access to our APIs, we need to think about two types o
 1. Who can **invoke** the API: To call a deployed API, or refresh the API caching, the caller needs the execute-api permission.  Create IAM policies that permit a specified API caller to invoke the desired API method.
 1. Who can **manage** the API: To create, deploy, and manage an API in API Gateway, the API developer needs the apigateway permission.
 
-See [API Gateway identity-based policy examples.](https://docs.aws.amazon.com/apigateway/latest/developerguide/security_iam_id-based-policy-examples.html)
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "execute-api:Invoke",
+                "execute-api:ManageConnections"
+            ],
+            "Resource": "arn:aws:execute-api:*:*:*"
+        }
+    ]
+}
+```
+
+See [API Gateway identity-based policy examples for detail on how to do these.](https://docs.aws.amazon.com/apigateway/latest/developerguide/security_iam_id-based-policy-examples.html)
 
 ### Parameter tampering
 
@@ -109,11 +125,11 @@ It is possible to define an API to upload doc to S3, but there is a risk that th
 
 ## Pricing
 
-* Pay when APIs are in use at a set cost per million requests. Data Transfer out of AWS cost occurs.
+* Pay when APIs are in use at a set cost per million requests. Cost occurs for Data Transfer out of AWS.
 * HTTP APIs are designed with minimal features so that they can be offered at a lower price. 
-* WebSocket APIs maintain persistent connections with clients for full-duplex communication. WebSocket APIs for API Gateway charge for the messages you send and receive. Also charged for the total number of connection minutes. the `$connect` route is to initiate the connection, `$disconnect` route.. and `$default` route when route selection cannot be assessed. 
-* Caching is billed  by the hour.
-* API can be sell as SaaS on Marketplace.
+* WebSocket APIs maintain persistent connections with clients for full-duplex communication. WebSocket APIs for API Gateway charge for the messages you send and receive. Also charged for the total number of connection minutes. the `$connect` route is to initiate the connection, `$disconnect` route to close the communication, and `$default` route when route selection cannot be assessed. 
+* Caching is billed by the hour.
+* APIs can be sell as SaaS on Marketplace.
 
 ## Monitoring
 

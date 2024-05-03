@@ -1,5 +1,17 @@
 # Coding practices
 
+!!!- info "Update"
+    Created 09/20/2022 - Updated 05/03/2024
+
+## How to reduce the cost as much as possible
+
+* Using aws CLI can be done from own computer, using access key. But keys are on computer vias the `aws configure` so risky. The alternate is to use CloudShell
+* CloudShell is free 
+* Try to do cloud formation stack, CDK or SAM and then destroy resources once proof of concept is done.
+* EC2 try to use the configuration best fitted for your need
+* When using Cloud9, we pay for the EC2 we used to edit code.
+* Sagemaker is very expensive
+
 ## AWS CLI common commands
 
 We can access AWS using the CLI or the SDK which both use access keys generated from the console (> Users > jerome > Security credentials > Access Keys).

@@ -2,8 +2,8 @@
 
 This site is about deeper studies and keep all my notes on AWS services, while I learn all this world. It includes summary, and labs + references to other repos I built to do proof of concepts.
 
-!!!- info "Version 0.23"
-    Created 09/20/2022 - Updated 11/05/2023
+!!!- info "Version 0.24"
+    Created 09/20/2022 - Updated 05/03/2024
 
 ## AWS
 
