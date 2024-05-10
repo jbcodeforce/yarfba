@@ -99,7 +99,7 @@ Use established runbooks for well-understood events, and use playbooks to aid in
 
 ## Security
 
-Emcompass the ability to protect data, systems and assets by controlling access and get visibility on who does what.
+Encompass the ability to protect data, systems and assets by controlling access and get visibility on who does what.
 
 It encompasses 5 items:
 
@@ -163,7 +163,7 @@ AWS Config records resource configuration changes and evaluate them against rule
 
 ### Reliability- Design principles
 
-* Use highly available network connectivity for the workload public endpoints: These endpoints and the routing to them must be highly available. Use Elastic Load Balancing which provides load balancing across Availability Zones, performs Layer 4 (TCP) or Layer 7 (http/https) routing, integrates with AWS WAF, and integrates with AWS Auto Scaling to help create a self-healing infrastructure and absorb increases in traffic while releasing resources when traffic decreases.
+* Use highly available network connectivity for the workload with public endpoints: These endpoints and the routing to them must be highly available. Use Elastic Load Balancing which provides load balancing across Availability Zones, performs Layer 4 (TCP) or Layer 7 (http/https) routing, integrates with AWS WAF, and integrates with AWS Auto Scaling to help create a self-healing infrastructure and absorb increases in traffic while releasing resources when traffic decreases.
 * Implement loosely coupled dependencies.
 * Deploy the workload to multiple locations: Distribute workload data and resources across multiple Availability Zone.
 * Automatically recover from failure.

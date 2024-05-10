@@ -12,7 +12,7 @@ Apply the sharing responsibility of resiliency: AWS for resiliency **of** the cl
 * Assess what is the current method to detect downtime, and the definition of downtime. Moving to a standby region cost time and effort, getting a clear assessment of what downtime means is very important before triggering the failover. Is it latency? is it missing orders?
 * Get an application inventory by category of criticality, including compliance requirements
 * What is the process in place to alert human for downtime?
-* What are the current observalbiltiy practice?
+* What are the current observability practice?
 * What is the recovery strategy?
 
 [Operational Readiness Review (ORR)](https://docs.aws.amazon.com/wellarchitecttandted/latest/operational-readiness-reviews/wa-operational-readiness-reviews.html) has questions and tools to help understand current state, assess risks, and presents best practices to create highly available, resilient systems. 
@@ -44,7 +44,7 @@ See [dedicated note on Route 53 ARC](../infra/route53.md/#route-53-arc) to suppo
 
 Helps to support application DR from on-premises to AWS or cloud based apps. It uses a Replication agent on source server to replicate data to AWS region and account.
 
-It supports testing non-disruptive recovery and failback drills, replications monitoring.
+It supports testing non-disruptive recovery and fallback drills, replications monitoring.
 
 ## High Availability
 
