@@ -1,7 +1,5 @@
 # Getting started
 
-
-
 ## Create a SSH KeyPair
 
 A key pair, consisting of a public key and a private key. The public key is saved on the EC2 instance, during the first boot (under `~/.ssh/authorized_keys`).  See the [product documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html?icmpid=docs_ec2_console#having-ec2-create-your-key-pair).
@@ -51,7 +49,7 @@ ssh-keygen -y -f /path_to_key_pair/new-key-pair.pem
 
 ## Deploying Apache HTTP on EC2
 
-Using AWS console, create a EC2 t2.micro instance with AWS Linux, a public IP address, a security group with SSH enabled from anywhere and HTTP on port 80 accessible from the internet (0.0.0.0/0). Associate the EC2 with a Key Pair so we can do SSH on the instance (and download the .pem file). The free tier is elligible to 30 GB of disk. Under the `Advanced details` section, add the following `bash` script in the `User Data` field:
+Using AWS console, create a EC2 t2.micro instance with AWS Linux, a public IP address, a security group with SSH enabled from anywhere and HTTP on port 80 accessible from the internet (0.0.0.0/0). Associate the EC2 with a Key Pair so we can do SSH on the instance (and download the .pem file). The free tier is eligible to 30 GB of disk. Under the `Advanced details` section, add the following `bash` script in the `User Data` field:
 
 ```shell
 #!/bin/bash

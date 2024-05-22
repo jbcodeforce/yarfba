@@ -4,7 +4,7 @@
 
 The CDK example in [the ec2-vpc folder](https://github.com/jbcodeforce/yarkba/tree/main/labs/cdk/ec2-vpc) supports the following definitions:
 
-![](./diagrams/hands-on-vpc.drawio.svg){ width= "1000" }
+![](./diagrams/hands-on-vpc.drawio.png){ width= "1000" }
 
 
 * The routes needs to define that traffic from internet goes to the IGW. The following route is associated to the public subnet-1:
@@ -17,9 +17,9 @@ The CDK example in [the ec2-vpc folder](https://github.com/jbcodeforce/yarkba/tr
 ![](./images/route-to-nat.png){ width="1000" }
 
 
-* IPv6 uses Egress only Internet Gateway for outbound requests from a private Subnet. For IPv4 oubtound internet traffic from a private subnet, we use a NAT instance or NAT Gateway. There is always an IP v4 assigned to EC2 instance.
+* IPv6 uses Egress only Internet Gateway for outbound requests from a private Subnet. IPv4 oubtound internet traffic from a private subnet, uses a NAT instance or NAT Gateway. There is always one IP v4 address assigned to EC2 instance.
 * NAT gateway is deployed inside a subnet and it can scale only inside that subnet. For fault tolerance, it is recommended that we deploy one NAT gateway per availability zone.
-* As we have set up a NAT Gateway in each public subnet, and the route in the private network routes all IP to the NAT gateway, we can ping from the EC2 running in the private subnet to the internet.
+* As we have set up a NAT Gateway in each public subnet, and the route in the private network routes all Internet traffic to the NAT gateway, we can ping from the EC2 running in the private subnet to the internet.
 
 * Below are the two NAT gateway references, one in each subnet/AZ:
 

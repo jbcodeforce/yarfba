@@ -2,17 +2,26 @@
 
 A highly available, scalable, fully managed, and authoritative (we can update public DNS records) DNS. It is also a Domain Registra and a health checking services to route traffic to healthy endpoints. It supports a lot of routing types to respond to DNS query by taking into account % of traffic, latency, health checks...
 
-This is a global WW service, which is globally distributed anycast network (networking and routing technology to get DNS query answered from the most optimal server) of DNS servers around the world.
+This is a global WW service, which is a globally distributed anycast network (networking and routing technology to get DNS query answered from the most optimal server) of DNS servers, deployed around the world.
 
-It uses the concept of `hosted zone` which is a "container" that holds information about how we want to route traffic for a domain or subdomain. The zone can be **public** (internet facing) or **private** (inside a VPC). All resource record sets within a hosted zone must have the hosted zone’s domain name as a suffix. Need a DNS domain for that.  Each Amazon Route 53 hosted zone is served by its own set of virtual DNS servers.
+When registering a domain to a registrar like Godaddy or Squarespace, at least 4 domain nameservers are defined to do name resolution.
+
+It uses the concept of `hosted zone` which is a "container" that holds information about how we want to route traffic for a single parent **domain** or subdomain. The zone can be **public** (internet facing) or **private** (inside a VPC). All resource record sets within a hosted zone must have the hosted zone’s domain name as a suffix. 
+
+![](./images/r53-hosted-zone.png)
+
+Each Amazon Route 53 hosted zone is served by its own set of virtual DNS servers.
+
+![](./images/dns-records.png)
 
 A domain is at least 12$ a year and Route 53 fees is $0.5 per month per hosted zone. See [Pricing page](https://aws.amazon.com/route53/pricing/), but users pay as they go and only for what it is used: monthly charge for each hosted zone managed, charges for every DNS query answered by the Route 53.
 
 ## DNS
 
-DNS is a collection of rules and records which helps client apps understand how to reach a server through URLs. Below figure presents the DNS name resolution process, which in fact should also has the root server (for the `.com`... resolution) and TLD server (for `amazon` or `google`). The SLD server is the one presented in the figure.
+DNS is a collection of rules and records which helps client apps understand how to reach a server through URLs. Below figure presents the DNS name resolution process, which in fact, should also has the Top Level Domain server (for `com` or `app`). The Second Level Domain server (amazon, google, ibm) is the one presented in the figure below.
 
  ![7](./images/dns.png){ width=600 }
+
 
 ### [Route 53 FAQs](https://aws.amazon.com/route53/faqs/)
 
@@ -35,9 +44,9 @@ Record defines how to route traffic for a domain. Each record contains:
 
 [CNAME](https://en.wikipedia.org/wiki/CNAME_record) is a DNS record to maps one domain name to another. CNAME should point to a ALB. Works on non root domain. We could not create a CNAME record for the top node of a DNS namespace (No APEX domain).
 
-Any public facing AWS resources expose an AWS DNS name: `.....us-west-2.elb.amazonaws.com` for ex.
+Any public facing AWS resources expose an AWS DNS name: `.....us-west-2.elb.amazonaws.com` for example that can be mapped using CNAME.
 
-**Alias** is used to point a hostname of an *AWS resource* only, and can work on root domain (domainname.com). The alias record target could be: ELB, CloudFront distributions, API gateway, Elastic Beanstalk environments, S3 Websites, VPC Interface endpoints, global accelerator, route 53 record (in the same hosted zone). EC2 DNS name could not be a target of alias.
+**Alias** is used to point a hostname of an *AWS resource* only, and can work on root domain (domainname.com). The alias record target could be: ELB, CloudFront distributions, API gateway, Elastic Beanstalk environments, S3 static Websites, VPC Interface endpoints, global accelerator, route 53 record (in the same hosted zone). EC2 DNS name could not be a target of alias.
 
 Use `dig <hostname>` to get the DNS resolution record from a Mac or for linux EC2 do the following.
 
@@ -64,7 +73,7 @@ EC2_AVAIL_ZONE=$(curl -s http://169.254.169.254/latest/meta-data/placement/avail
 echo "<h1>Hello World from $(hostname -f) in AZ $EC2_AVAIL_ZONE </h1>" > /var/www/html/index.html
 ```
 
-* Add at least one ALB to route to instances in a region to different AZs
+* Add at least, one ALB to route to instances in a region to different AZs
 * Define a domain name (5$ to 12$ a year)
 * Create a hosted zone in Route 53.
 * Define DNS records in Route 53 for each ALB and EC2 IP @ based on a subdomain name, using one of the type as specified in next section.

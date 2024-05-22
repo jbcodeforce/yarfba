@@ -26,7 +26,7 @@ The keys are saved in `~/.aws/credentials` in different profile:
 Test with some commands:
 
 ```sh
-aws --versionmkdoc
+aws --version
 # get your users
 aws iam list-users
 # For a given profile
@@ -35,10 +35,10 @@ aws iam list-users --profile hackaton
 
 * [VPC scenario with CLI - Tutorial](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenarios-cli.html)
 * [Use CloudShell in west-2 region for using aws cli](https://us-west-2.console.aws.amazon.com/cloudshell)
-* [aws-shell](https://github.com/awslabs/aws-shell) is also available to facilitate the user experience in your laptop terminal console.
+* [aws-shell](https://github.com/awslabs/aws-shell) is also available to facilitate the user experience using a laptop terminal console.
 
 
-When using CLI in a EC2 instance always use an IAM role to control security credentials. This role may come with a policy authorizing exactly what the EC2 instance should be able to do. 
+When using CLI in a EC2 instance, always use an IAM role to control security credentials. This role may come with a policy authorizing exactly what the EC2 instance should be able to do. 
 
 Also within a EC2 instance, it is possible to use the URL http://169.254.169.254/latest/meta-data to get information about the EC2. We can retrieve the IAM Role name from that metadata.
 
@@ -61,9 +61,6 @@ aws configure
 # Verify access
 aws iam list-users
 ```
-
-!!! info
-    The jbcodeforce/python docker image has the aws cli and goto3.
 
 ## [LocalStack](https://docs.localstack.cloud/overview/)
 
@@ -127,7 +124,7 @@ With Elastic Beanstalk, developers upload their application. Then, Elastic Beans
 * Use the concept of application, which is a collection of Beanstalk components (environments, versions, configurations).
 * Instance configuration and OS is managed by Beanstalk
 * Deployment strategy is configurable. It uses [CloudFormation](#cloudformation) to deploy the application and the environment.
-* It defines two preconfigured environments:
+* It defines two pre-configured environments:
 
     * Web Server Tier: classical ELB, Auto scaling group and EC2s.
     * Worker environment with the use of SQS queue.
@@ -141,8 +138,6 @@ With Elastic Beanstalk, developers upload their application. Then, Elastic Beans
 * Support blue/green deployment
 * A custom AMI can improve provisioning times when instances are launched in our environment if we need to install a lot of software that isn't included in the standard AMIs.
 * No charge.
-
-* [tutorials]()
 
 ## [Elastic Container Registry](https://docs.aws.amazon.com/ecr/)
 
@@ -352,7 +347,7 @@ Amazon CodeWhisperer offers developers a new and seamless way to build applicati
 ???+ info "Python app with CDK and lambda demonstration."
     The code is in [labs/code-whisperer-demo](https://github.com/jbcodeforce/yarfba/tree/main/labs/code-whisperer-demo) with a readme to demonstrate the code generation capability.
 
-### Codewhisperer resources:
+### CodeWhisperer resources:
 
 * [Product documentation.](https://docs.aws.amazon.com/codewhisperer/latest/userguide/what-is-cwspr.html)
 * [Amazon CodeWhisperer Overview - Video.](https://www.youtube.com/watch?v=j8BoVmHKFlI)

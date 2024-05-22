@@ -6,11 +6,11 @@ The Cloud Formation created from this cdk includes:
 * One VPC.
 * One public subnet and one private subnet.
 * One Bastion Host deployed in Public subnet with pem associated to an existing key-pair
-* An EC2 instance in the private subnet, with a security group to get SSH from 
+* An EC2 instance in the private subnet, with a security group to authorize SSH from bastion host
 
 The goal is to demonstrate SSH to the EC2 instance via the Bastion Host.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+The `cdk.json` file tells the CDK Toolkit how to execute the app.
 
 This project is set up like a standard Python project.  The initialization
 process also creates a virtualenv within this project, stored under the `.venv`
