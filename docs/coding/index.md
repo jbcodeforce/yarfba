@@ -5,29 +5,29 @@
 
 ## How to reduce the cost as much as possible
 
-* Using aws CLI can be done from own computer, using access key. But keys are on computer vias the `aws configure` so risky. The alternate is to use CloudShell
+* Using aws CLI can be done from own computer, using access key. But keys are saved on computer vias the `aws configure`. The alternate is to use CloudShell. 
 * CloudShell is free 
 * Try to do cloud formation stack, CDK or SAM and then destroy resources once proof of concept is done.
-* EC2 try to use the configuration best fitted for your need
+* EC2 try to use the configuration best fitted for the need
 * When using Cloud9, we pay for the EC2 we used to edit code.
 * Sagemaker is very expensive
 
 ## AWS CLI common commands
 
-We can access AWS using the CLI or the SDK which both use access keys generated from the console (> Users > jerome > Security credentials > Access Keys).
+We can access AWS using the CLI or the SDK which both user access keys generated from the console (> Users > jerome > Security credentials > Access Keys).
 
 The keys are saved in `~/.aws/credentials` in different profile:
 
 * A named profile is a collection of settings and credentials that we can apply to a AWS CLI command. When you specify a profile to run a command, the settings and credentials are used to run that command.
 * Installation: [aws cli](https://aws.amazon.com/cli/)
 * The cli needs to be configured: `aws configure` with the access key ID, and secret, and region to access. Use IAM user to get a new credentials key. The credentials and API key are in `~/.aws/credentials` in default profile. 
-* We can use profile to change user
+* We can use the aws profile to change user
 
 Test with some commands:
 
 ```sh
 aws --version
-# get your users
+# get the users in iam. The currently logged user needs to have the permissions to list iam resources.
 aws iam list-users
 # For a given profile
 aws iam list-users --profile hackaton

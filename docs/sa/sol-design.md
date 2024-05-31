@@ -6,7 +6,7 @@ This section presents examples of solution design using AWS services, with links
 
 ### Migrate an old not maintained app
 
-* When application use custom OS configurations use Application Migration Service.
+* When application uses custom OS configurations, use Application Migration Service.
 * Replatform existing database server to Amazon RDS. AWS Database Migration Service gives the ability to convert DB to a supported RDS engine such as MySQL. AWS Schema Conversion Tool supports the schema conversion to Amazon RDS.
 
 
