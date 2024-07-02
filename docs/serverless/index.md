@@ -69,7 +69,7 @@ Design by thinking: "what are the events that should trigger something in my sys
 * When the Lambda function successfully processes a batch, the Lambda service deletes that batch of messages from the queue.
 * If any of the messages in the batch fail, all items in the batch become visible on the queue again. Which will generate duplicates.
 * When a message continues to fail, send it to a dead-letter queue, another SQS queue.
-* AWS [Step Functions](#aws-step-function) can coordinate the distributed components of the application and keep the need for orchestration out of the code.
+* AWS [Step Functions](#step-function) can coordinate the distributed components of the application and keep the need for orchestration out of the code.
 
     ![](./images/eda-step-sqs-sns.png){ width=900 }
 

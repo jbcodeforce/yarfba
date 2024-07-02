@@ -23,7 +23,7 @@ Try to use AWS Cloud9 to do most of the labs, as it avoids creating internet end
 * A complete app with Lambdas, API Gateway, DynamoDB table demonstrating how to chain lambda functions. It is part of a [AWS cdk workshop](https://github.com/jbcodeforce/yarfba/tree/main/labs/cdk/cdk_workshop). One Lambda is a basic hello world and the second one is counting each request to hello and increase a counter in DynamoDB. The hit count function is exposed as part of API Gateway `/` path. Once receive the event, it delegates to hello function to get the response, but update the dynamodb table before that. It also uses cdk-dynamo-table-view to view the content of a table. There are also access control to authorize the hello lambda to call the 
 *  The [ec2-vpc](https://github.com/jbcodeforce/yarfba/tree/main/labs/cdk/ec2-vpc) folder supports the following definitions:
 
-    ![](./diagrams/hands-on-vpc.drawio.svg)
+    ![](./diagrams/hands-on-vpc.drawio.png)
 
 * [ec2-basic](https://github.com/jbcodeforce/yarfba/tree/main/labs/cdk/ec2-basic): use API to get reference to the default VPC then create `t2.micro` EC2 instance to host Apache httpd as defined in a user_data script.
 

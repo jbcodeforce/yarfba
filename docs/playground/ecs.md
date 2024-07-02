@@ -12,7 +12,7 @@ This is using the AWS Console.
 
     ![](./images/ecs/ecs-cluster.png)
 
-    As an alternate approach, use aws CLI or CDK/cloudformation as illustrated [below](#deploy-a-python-flask-app-with-cdk).
+    As an alternate approach, use aws CLI or CDK/cloudformation as illustrated [below](#deploy-a-python-flask-app-with-cdk-ecs_patterns).
 
 1. Ensure the VPC in which the ECS cluster is deployed, has a route to access to the port number of the app to deploy (port 8080 or 80) 
 1. Add a task definition to use NGInx demo hello docker image

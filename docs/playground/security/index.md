@@ -13,7 +13,7 @@ The security demonstrations are aimed to get hands-on experience around:
 ### Define users and groups with IAM
 
 See [summary on IAM](../../infra/security.md#iam-identity-and-access-management). Better to define user and do not use root user. User can be created using CloudFormation or CDK. See 
-[cdk samples](../../coding/cdk.md#some-how-to) and [the aws-remote-svc-access-from-k8s repository to demonstrate remote service access from k8s.](https://github.com/jbcodeforce/aws-remote-svc-access-from-k8s/tree/main/cdk).
+[cdk samples](../../coding/cdk.md/#some-how-tos) and [the aws-remote-svc-access-from-k8s repository to demonstrate remote service access from k8s.](https://github.com/jbcodeforce/aws-remote-svc-access-from-k8s/tree/main/cdk).
 
 ### IAM Role to trust a user to access AWS Service like EC2
 

@@ -8,8 +8,8 @@ In AWS context, a set of AWS services support your data strategy:
 
 * [Amazon Redshift](./redshift.md)
 * [S3](../infra/storage.md#s3-simple-storage-service)
-* [Aurora](../data/rds.md#aurora)
-* [EMR](../analytics/index.md#elastic-mapreduce-emr): Created in 2009, it is a managed service to run Spark, Haddop, Hive, Presto, HBase... Per-second prcing and save 50%-80% with Amazon EC2 Spot and reserved instances.
+* [Aurora](./rds.md/#amazon-aurora)
+* [EMR](../analytics/emr.md): Created in 2009, it is a managed service to run Spark, Hadoop, Hive, Presto, HBase... Per-second pricing and save 50%-80% with Amazon EC2 Spot and reserved instances.
 * [DynamoDB](./dynamodb.md)
 * [Athena](../analytics/index.md#aws-athena)
 * [Glue](./index.md#aws-glue)

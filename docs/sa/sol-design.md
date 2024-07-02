@@ -170,7 +170,7 @@ So use this pattern only if you cannot do the two previous patterns.
 
 * [S3](../infra/storage.md#s3-simple-storage-service)
 * [EBS](../infra/storage.md#amazon-elastic-block-storage-ebs)
-* [DynamoDB](../data/index.md#dynamodb)
+* [DynamoDB](../data/dynamodb.md)
 
 ## SaaS deployment for an ISV
 

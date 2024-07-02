@@ -1,51 +1,52 @@
 # Networking
 
 All regions are interconnected via private AWS fiber links. This drives better availability, higher performance, lower jitter and reduced costs.
-Each region has redundant path to transit centers, which connect to private links to other AWS regions, and to AWS Direct Connect customers' data centers, internet via peering and paid transit. The connections between AZs is a metro area over DWDM (Dense wavelength division multiplexing) links. 82k fibers in a region. single digit milisecond latency. 25Tbps peak inter AZs traffic. 
+Each region has redundant paths to transit centers, which connect via private links to other AWS regions, to AWS Direct Connect customers' data centers, to the internet via peering and paid transit. The connections between AZs is a metro area over DWDM (Dense wavelength division multiplexing) links. 82k fibers in a region. single digit millisecond latency. 25Tbps peak inter AZs traffic. 
 
-IPv4 allows 3.7 billions of different addresses. Private IP @ is for private network connections. Internet gateway has public and private connections. Public IP can be geo-located. When connected to an EC2 the prompt lists the private IP (`ec2-user@ip-172-31-18-48`). Private IP stays stable on instance restart, while public may change.
+IPv4 allows 3.7 billions of different addresses. Private IP @ is for private network connections. Internet gateway has public and private connections. Public IP can be geo-located. When connected to an EC2, the linux prompt lists the private IP (`ec2-user@ip-172-31-18-48`). Private IP stays stable on instance restart, while public may change.
 
-With Elastic IP address, we can mask an EC2 instance failure by rapidly remapping the address to another instance. But better to use DNS.
-Elastic IP is a public IPv4 that we own as long as we want and we can attach it to one EC2 instance at a time. It is not free.
+With Elastic IP address, we can mask an EC2 instance failure by rapidly remapping the address to another instance. The mapping is manual. So better to use DNS. Elastic IP is a public IPv4 that users own as long as they want.  EIP can be attached to only one EC2 instance at a time. It is not free.
 
 ## [Virtual Private Cloud](https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html)
 
-A virtual private cloud (VPC) is a virtual network dedicated to our AWS account. All new accounts have a default VPC. It is logically isolated from other virtual networks in the AWS Cloud. We can launch our AWS resources, such as Amazon EC2 instances, within our VPC. New EC2 instances are launched into the default VPC if no subnet is specified.
+A virtual private cloud (VPC) is a virtual network dedicated to one AWS account. All new accounts have a default VPC. It is logically isolated from other virtual networks in the AWS Cloud. Account owner can launch AWS resources, such as Amazon EC2 instances, within the VPC. New EC2 instances are launched into the default VPC if no subnet is specified.
 
-When defining new VPC, we specify CIDR, add subnets, associate security groups (firewall type of rules), Access Control List, and configure route tables.
+When defining new VPC, user needs to specify CIDR, subnets, associate security groups (firewall type of rules), Access Control List, and configure route tables.
 
-![](./images/networking/default-vpc.png){ width=700 }
+![](./images/networking/default-vpc.png){ width=800 }
 
 **Figure 1: VPC**
 
 
-By default, AWS creates a VPC with default public subnets, one per AZs, they are public because the main route table includes a route to the **Internet Gateway**. Internet gateway is a managed service which automatically scales, is redundant and highly available.
+By default, AWS creates a VPC with default public subnets, one per AZs, they are public because the main route table includes a route to the **Internet Gateway**. [Internet gateway](https://docs.aws.amazon.com/vpc/latest/userguide/working-with-igw.html) is a managed service with auto scaling, redundancy and highly availability. It is attached to a VPC in get internet traffic.
+
+![](https://docs.aws.amazon.com/images/network-firewall/latest/developerguide/images/arch-igw-natgw.png)
 
 VPC Helps to:
 
 * Assign static IP addresses, potentially multiple addresses for the same EC2 instance.
-* Change security group membership for the instances while they're running.
+* Support changing security group membership for the instances while they're running.
 * Control the outbound traffic from the instances (egress filtering) in addition to controlling the inbound traffic to them (ingress filtering).
-* We can have multiple VPCs per region (max to 5 but this is a soft limit). 5 maximum CIDRs per VPC.
-* The IP ranges are in 10.x.x.x, 172, or 192 base and a min /28 and max /16.
+* Users can have multiple VPCs per region (max to 5 but this is a soft limit). 5 maximum CIDRs per VPC.
+* The IP ranges are in 10.x.x.x, 172, or 192 base and a min /28 to a max /16.
 
 Network Access Control List can be defined at the VPC level, so will be shared between subnets. The default network ACL is configured to allow all traffic to flow in and out of the subnets which it is associated to. Each network ACL also includes a rule whose rule number is an asterisk. This rule ensures that if a packet doesn't match any of the other numbered rules, it's denied. 
 
-The following diagram illustrates classical VPC, with one vpc, two availability zones, two public subnets with EC2 instances within those subnets. An internet gateway is connected to a router. Subnet is defined per availability zone. It defines an IP CIDR range: we should have less IP@ on public subnets as they are used for ELB and very few resources. Most of the service instances should be in private subnets.
+The following diagram illustrates classical VPC, with one vpc, two availability zones, two public subnets with EC2 instances within those subnets. An internet gateway is connected to a router. Subnet is defined per availability zone. It defines an IP CIDR range: there should have less IP@ on public subnets as they are used for ELB and very few public facing resources. Most of the service instances should be in private subnets.
 
 ![](./images/vpc.png){ width="700" }
 
 **Figure 2: EC2s in public subnets**
 
-* *A subnet is assigned a /24 CIDR block, which means 8 bits encoding (32-24), but AWS uses 5 IP addresses in each subnet for gateway, LB,... so the number of available addresses is 256 - 5 = 251. To identify a single 32 bit IPv4 address, we can use /32 CIDR convention* 
-* We need to define at least one Route Table for the public subnets and one for the private subnets.
+* **A subnet is assigned a /24 CIDR block, which means 8 bits encoding (8=32-24) for a total of 256 = 2^8 addresses. But AWS uses 5 IP addresses in each subnet for gateway, LB,... so the number of available addresses is 256 - 5 = 251. To identify a single 32 bit IPv4 address, we can use /32 CIDR convention** 
+* Users need to define at least one Route Table for the public subnets and one for the private subnets.
 * Non-default subnet has a private IPv4 address, but no public IPv4 address.
-* We can make a default subnet into a private subnet by removing the 0.0.0.0/0 route to the Internet Gateway. The route table in figure above defines such route, therefore the subnets are public.
-* EC2 Instances should have either public IP or private IP and the subnet they belong to, must have a route to the internet gateway. The figure 5 above, illustrates a route going to any IP @ (0.0.0.0/0) via the internet gateway (`igw-id`). Any host in the private network 172.31.0.0/16 can communicate with other hosts in the local network.
-* Route table defines `172.31` as local with `/16` CIDR address range, internal to the VPC.
+* SRE can make a default subnet into a private subnet by removing the 0.0.0.0/0 route to the Internet Gateway. The route table in figure above defines such route, therefore the subnets are public.
+* EC2 Instances should have either public IP or private IP and attached to the subnet they belong to. Subnet needs a route to the internet gateway. The figure 5 above, illustrates a route going to any IP @ (0.0.0.0/0) via the internet gateway (`igw-id`). Any host in the private network 172.31.0.0/16 can communicate with other hosts in the local network.
+* Route table defines `172.31` as local with `/16` CIDR address range, for internal traffic within the VPC.
 * Because the VPC is cross AZs, we need a router to route between subnets. (See [TCP/IP summary](https://jbcodeforce.github.io/architecture/tcpip))
 
-### Elastic Network Insterfaces
+### Elastic Network Interfaces
 
 ENI is a logical component in a VPC that represents a virtual network card. It has the following attributes:
 
@@ -54,7 +55,7 @@ ENI is a logical component in a VPC that represents a virtual network card. It h
 * One Public IPv4 address.
 * One or more security groups.
 * A MAC address.
-* We can create ENI independently and attach them on the fly (move them) on EC2 instances during failover. It is also attached to any elastic load balancer. ENIs are defined at the account level.
+* It can be created independently and attach them on the fly (move them) on EC2 instances during failover. It is also attached to any elastic load balancer. ENIs are defined at the account level.
 * Bound to a specific availability zone (AZ), we cannot attach ENI to an EC2 instance in a different AZ. 
 
 [New ENI doc.](https://aws.amazon.com/blogs/aws/new-elastic-network-interfaces-in-the-virtual-private-cloud/)
@@ -76,8 +77,7 @@ Use a NAT gateway so that EC2 instances in a private subnet can connect to servi
 
 Charged for each hour the NAT gateway is available and each Gigabyte of data that it processes.
 
-It is created in a specified AZ, public subnet, and uses an Elastic IP and can only be used by EC2 in other subnets. The route is from the private subnet to the NATGW to the IGW. To get HA, we need one NATG per AZ.
-
+It is created in a specified AZ, public subnet, and uses an Elastic IP and can only be used by EC2 in other subnets. The route is from the private subnet to the NATGW to the IGW. To get HA, configure one NATG per AZ.
 
 ### Network ACLs
 
@@ -154,11 +154,11 @@ A transit gateway connects VPCs and on-premises networks through a central hub. 
 
 ### [VPC Endpoint](https://docs.aws.amazon.com/vpc/latest/privatelink/create-interface-endpoint.html)
 
-An interface VPC endpoint allows us to privately connect our Amazon VPC to supported AWS services without going over the internet. Interface VPC endpoints also connect to endpoint services hosted by other AWS accounts and AWS Marketplace partner services.
+An interface VPC endpoint allows to privately connect one Amazon VPC to the supported AWS services without going over the internet. Interface VPC endpoints also connect to endpoint services hosted by other AWS accounts and to AWS Marketplace partner services.
 
 Two types of endpoint:
 
-* **Interface endpoints** powered by PrivateLink: it provisions an ENI in the VPC, with a security group. Pay per hour and GB of data transferred. It can access AWS services such as Simple Queue Service (SQS), Simple Notification Service (SNS), Amazon Kinesis (all except DynamoDB). Can be accessed with site-to-site VPN and Direct Connect. It has a private domain name
+* **Interface endpoints** powered by PrivateLink: it provisions an ENI in the VPC, with a security group. Pay per hour and GB of data transferred. It can access AWS services such as Simple Queue Service (SQS), Simple Notification Service (SNS), Amazon Kinesis (all except DynamoDB). Can be accessed with site-to-site VPN and Direct Connect. It has a private domain name.
 * **Gateway endpoints**: provision a GTW and setup routes in route tables. Used for **S3 and DynamoDB** only. Free. Cannot be extended out of the VPC. One per VPC.
 
 ![](./diagrams/networking/vpc-end-pt.drawio.png)
@@ -192,7 +192,7 @@ A endpoint policy can limit access to a SQS queue for a given user or role, then
     1. Verify the s3 bucket policy allows the EC2 access
     1. Verify the IAM role used by the EC2 has access to the bucket.
 
-    See [this lab](https://github.com/jbcodeforce/aws-studies/tree/main/labs/networking/ec2-vpce-s3) with CDK to set this up.
+    See [this lab](https://github.com/jbcodeforce/yarfba/tree/main/labs/networking/ec2-vpce-s3) with CDK to set this up.
 
 ### VPC Flow Logs
 
@@ -323,7 +323,7 @@ The following animation is presenting external integration from on-premises serv
 
 ## [Elastic Load balancers](https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/what-is-load-balancing.html)
 
-Route traffic into the different EC2 instances, containers or any IP @ end points in one or more AZs. As a managed service, Elastic Load Balancing scales automatically in response to changes in incoming traffic. It is deployed per region.
+Routes traffic into the different EC2 instances, containers or any IP @ end points in one or more AZs. As a managed service, Elastic Load Balancing scales automatically in response to changes in incoming traffic. It is deployed per region.
 
 The goal is to improve availability and fault tolerance. It also exposes a single point of access (DNS) to the deployed applications.
 
@@ -333,7 +333,7 @@ It uses health check (`/health` on the app called the `ping path`) to assess ins
 
  **Figure 18: ELB**
 
-When we create a load balancer, we must choose whether to make it an internal load balancer or an internet-facing load balancer, and select the availability zones to route traffic to.
+When SREs create a load balancer, they must choose whether to make it an internal load balancer or an internet-facing load balancer, and select the availability zones to route traffic to.
 
 Internet-facing load balancers have public IP addresses. The DNS name of an internet-facing load balancer is publicly resolvable to the public IP addresses of the nodes. Internal load balancers have only private IP addresses.  They can only route requests from clients with access to the VPC of the load balancer.
 
@@ -341,7 +341,7 @@ Internet-facing load balancers have public IP addresses. The DNS name of an inte
 
 **Figure 19: Public and private ELBs**
 
-For certain needs, it also supports stickness cookie to route to the same EC2 instance.
+For certain needs, it also supports stickiness cookie to route to the same EC2 instance.
 ELB has security group defined for HTTP and HTTPS traffic coming from the internet, and the EC2 security group defines HTTP traffic to the ELB only.
 
 ### Four types of ELB supported
@@ -349,17 +349,17 @@ ELB has security group defined for HTTP and HTTPS traffic coming from the intern
 * **Classic** load balancer: older generation. TCP and HTTP layer. For each instance created, update the load balancer configuration so it can route the traffic.
 * **Application load balancer**: HTTP, HTTPS (layer 7), Web Socket. 
 
-    * It specifies availability zones: it routes traffic to the targets within these Availability Zones. To increase availability, we need at least two AZs.
+    * It specifies availability zones: it routes traffic to the targets within these Availability Zones. To increase availability, use at least two AZs.
     * It uses target groups, to group applications.
-    * Route on URL, hostname and query string.
-    * Get a fixed hostname in DNS.
-    * The application do not see the IP address of the client directly (ELB does a connection termination), but ELB puts client information in the header `X-Forwarded-For` (IP @), `X-Forwarded-Port` (port #) and `X-Forwarded-Proto` (protocol).
+    * Routes on URL, hostname and query string.
+    * Gets a fixed hostname in DNS.
+    * The applications do not see the IP address of the client directly (ELB does a connection termination), but ELB puts client information in the header `X-Forwarded-For` (IP @), `X-Forwarded-Port` (port #) and `X-Forwarded-Proto` (protocol).
     * Great for microservices or for container based apps (ECS).
     * Support dynamic port mapping for ECS container.
     * Support HTTP/2 and WebSocket.
 
 !!! info
-    **Target group**: group EC2 instances by specifying a Auto Scaling Group. They may be tasks or containers in ECS, or lambda functions. Health check is done at the EC2 or container level. Application Load Balancers are the only load balancers that support the lambda target type.
+    **Target group**: groups EC2 instances by specifying a Auto Scaling Group. They may be tasks or containers in ECS, or lambda functions. Health check is done at the EC2 or container level. Application Load Balancers are the only load balancers that support the lambda target type.
 
 * **Network load balancer**: TCP, UDP (layer 4), TLS
 
@@ -379,7 +379,7 @@ ELB has security group defined for HTTP and HTTPS traffic coming from the intern
     * Works at layer 3: IP packet.
     * Combine NLB and gateway service.
     * Also use target groups.
-    * Use the Geneve protocol (support network virtualization use cases for data center ) on port 6081 
+    * Use the Geneve protocol (support network virtualization use cases for data centers ) on port 6081 
 
 To route traffic, first the DNS name of the load balancer is resolved. (They are part of the `amazonaws.com` domain). 1 to many IP Addresses are sent back to the client. With NLBs, Elastic Load Balancing creates a network interface for each Availability Zone that is enabled. Each load balancer node in the Availability Zone uses this network interface to get a static IP address. ELB scales the load balancer nodes and updates the DNS entry. The time to live is set to 60s.
 
