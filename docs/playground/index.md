@@ -17,6 +17,7 @@ Try to use AWS Cloud9 to do most of the labs, as it avoids creating internet end
 ## CloudFormation
 
 * A Redis Server in a VPC, public subnet. See [labs/networking](https://github.com/jbcodeforce/yarfba/tree/main/labs/networking).
+* EC2 to run docker and docker compose [code](https://github.com/jbcodeforce/athena-owl-demos/tree/main/IaC/aws/ec2_docker_compose) based on articles like [this one](https://medium.com/@geeekfa/docker-and-docker-compose-on-aws-linux-2-9e90f79502db) and [video](https://www.youtube.com/watch?v=gRgdnHHuvoI)
 
 ## CDK play
 
