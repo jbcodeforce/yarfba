@@ -8,10 +8,10 @@
 * [AWS MSK SDK API](https://docs.aws.amazon.com/msk/1.0/apireference/what-is-msk.html) to create and manage cluster resources.
 * Use the same Kafka tools as open source Apache Kafka, like Cruise control, Mirror maker 2, Kafka connect...
 * User interface to manage topics, consumer groups is not provided, and any open source can be used. 
-* Integrated with IAM, to use IAM role to control who can access and create topics on the cluster, send data... Client can assume the defined role.
-* Integrated with VPC security group to control external machines access.
+* Integrated with IAM, to use IAM role to control who can access and create topics on the cluster, and to send data... Client applications can assume the defined role.
+* Integrated with VPC security group to control external machines access. It is still not recommended to expose cluster to public internet.
 * Provisioning with IaC in CloudFormation or CDK. 
-* Integrate with Amazon Glue Schema Registry for schema evolution
+* Integrate with Amazon Glue Schema Registry for schema management
 * Direct integration with Apache Flink for real-time processing using Zeppelin Notebook or custom code via s3 bucket.
 * The data storage is backed by Amazon Elastic Block Storage (Amazon EBS) volumes and remote storage.
 * Support [tiered storage](https://docs.aws.amazon.com/msk/latest/developerguide/msk-tiered-storage-retention-rules.html) to move data out of retention period window to longer storage  class.
@@ -20,11 +20,13 @@
 ### Typical use cases:
     
 * Data ingestion for data lakes, data warehouses
-* Event streaming with time windowing analytics: click streams
+* Event streaming with time windowing analytics: click streams processing.
 * Event sourcing in an EDA to support event backbone and event store capabilities.
 * Messaging support for asynchronous communication between microservices, to increase decoupling.
-* Metrics and log aggregations 
-* Deliver messages to Spark Streaming jobs
+* Metrics and log aggregations.
+* Deliver messages to Spark Streaming jobs.
+
+*Strangely MSK is part of the data and analytics organization and not part of the EDA approach at AWS*
 
 ### Moving to a managed service for Kafka
 
@@ -34,7 +36,7 @@ We may want to assess the following items:
 * Number of cluster and how may nodes per cluster?
 * What are the Sources of the event? 
 * What are the target Sinks?
-* How are you consuming events from Kafka today?
+* How are you consuming events from Kafka today (application type, volumes, throughput, lag monitoring)?
 * How do you persist the records? and what is the current second level of storage?
 * How do you currently upgrade your Kafka clusters? 
 * How elastic are your current Kafka clusters? Do you scale up or down according to message traffic?
@@ -44,9 +46,9 @@ We may want to assess the following items:
 
 ## Getting Started
 
-* MSK cluster may be created from the AWS console, the CLI, Cloud Formation or CDK.
+* MSK cluster may be created from the AWS console, from the CLI, or using Cloud Formation template or CDK code.
 * We can connect clients from up to five different VPCs with MSK Serverless clusters.
-* Client connection can IAM user to authenticate to MSK, using a special Java class for that (in the `aws-msk-iam-auth-1.1.7-all.jar`), or use the SASL, or Plain connection types.
+* Client connection can use IAM user to authenticate to MSK, using a special Java class for that (in the `aws-msk-iam-auth-1.1.7-all.jar`), or use the SASL, or Plain connection types.
 * Specify EC2 machine instance type from `kafka.t3.small` to `kafka.m5.24xlarge`.
 * Routing rules in the security group needs to support all tcp traffic on Zookeeper port 2181, and the different kafka bootstrap ports depending on the authentication procotol used: (9098 for IAM, 9092 for PLAIN, 9094 SASL)
 
@@ -54,8 +56,8 @@ We may want to assess the following items:
 
 The AWS Console MSK creation wizard is quite simple to follow. Some considerations to address:
 
-* Can create serverless or provisioned cluster.
-* Recommended version is kafka 2.8.1. BUT for getting [tiered storage](https://docs.aws.amazon.com/msk/latest/developerguide/msk-tiered-storage.html), there is only one version 2.8.2.tiered
+* Can create serverless cluster or provisioned cluster.
+* Recommended version is kafka 3.6.0 for getting [tiered storage](https://docs.aws.amazon.com/msk/latest/developerguide/msk-tiered-storage.html). For 2.8.x version there is only one version: 2.8.2.tiered. See [restrictions documentation)(https://docs.aws.amazon.com/msk/latest/developerguide/msk-tiered-storage.html#msk-tiered-storage-constraints).
 * VPC needs DNS hostnames and DNS resolution enabled and at least 2 subnets for 2 AZs.
 * To use [provisioned storage throughput](https://docs.aws.amazon.com/msk/latest/developerguide/msk-provision-throughput.html) up to 1000 MiB/s, choose kafka.m5.4xlarge or a larger broker type.
 * Think about what are the default configuration for the Kafka brokers, retention, topic creation... and define a MSK configuration which can be used by different clusters. 
@@ -172,10 +174,10 @@ See [service-specific resources, actions, and condition context keys for use in 
 
 For resource-based policy, we can define which IAM principals have cross-account permissions to use the MSK cluster. 
 
-## Limits
+## [Limits](https://docs.aws.amazon.com/msk/latest/developerguide/limits.html)
 
 * When the throughput exceeds the write (200MiB/s) and read (400MiB/s) thresholds, client will be throttled. 
-* 30 brokers per clusters, and 90 brokers per account.
+* 30 brokers per clusters with zookeeper, 60 with Kraft, and 90 brokers per account.
 * 20 TCP connections per broker per second.
 * 2400 partitions
 
