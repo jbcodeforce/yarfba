@@ -1,0 +1,31 @@
+Announcing My New Online Book: An Introduction to Event-Driven Architecture
+
+I'm excited to announce that I've published a new online book called An Introduction to Event-Driven
+Architecture. This book provides an overview of event-driven architecture, a software architecture
+pattern used to build responsive and scalable applications.
+
+In this book, I cover:
+
+• The core concepts of event-driven architecture including events, event producers, event consumers,
+and event brokers.
+
+• The benefits of event-driven architecture like loose coupling, scalability, and responsiveness.
+
+• Examples of popular event-driven architectures like publish-subscribe and event sourcing.
+
+• How to implement event-driven architecture using messaging systems like RabbitMQ, Kafka, and AWS
+SNS/SQS.
+
+• Common use cases for event-driven architecture like ecommerce, streaming data pipelines, and IoT
+applications.
+
+The book is available for free on my website at [website link]. I hope you find it useful in
+learning event-driven architecture. Please share it with anyone else who may be interested in this
+architecture pattern.
+
+Let me know if you have any feedback or questions on the book. I'm always looking to improve my
+writing and provide the most useful content for my readers.
+
+How's that? I focused on highlighting the key topics and concepts covered in the book, emphasizing
+the benefits and use cases of event-driven architecture. Please feel free to modify the post as you
+see fit. Just let me know if you'd like me to revise anything.
